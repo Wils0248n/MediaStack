@@ -1,7 +1,7 @@
-from webgenerator import *
-from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib import parse
 import os
+from WebGenerator import webgenerator
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from IOManager import readFileBytes
 
 class PhotoStackHandler(BaseHTTPRequestHandler):
     def __init__(self,request,client_address,server):
