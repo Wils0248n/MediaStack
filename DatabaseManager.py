@@ -34,6 +34,8 @@ class databaseManager:
         self.conn.commit()
 
     def addImageToDB(self, image):
+        if not thumbnailImage(image):
+            return
         imagePath = image.replace(self.rootDir + os.path.sep, '')
         imagePath = imagePath.split(os.path.sep)
         if len(imagePath) == 3:
@@ -82,5 +84,3 @@ class databaseManager:
 
         return (imagesNotInDatabase, missingImagesInDatabase)
 
-if __name__ == '__main__':
-    databaseManager("photos").verifyDatabase()

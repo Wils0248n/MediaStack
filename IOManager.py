@@ -57,10 +57,5 @@ def scanImageDirectory(rootDir):
     images = []
     for currentDirectory, directories, files in os.walk(rootDir):
         for file in files:
-            currentPath = os.path.join(currentDirectory, file)
-            if thumbnailImage(currentPath):
-                images.append(currentPath)
+            images.append(os.path.join(currentDirectory, file))
     return images
-
-if __name__ == '__main__':
-    print(scanImageDirectory("photos"))
