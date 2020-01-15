@@ -5,7 +5,7 @@ from urllib.parse import unquote
 from IOManager import readFileBytes
 from DatabaseManager import databaseManager
 
-dbManager = databaseManager()
+dbManager = databaseManager("photos")
 webGenerator = webgenerator()
 
 class PhotoStackHandler(BaseHTTPRequestHandler):
@@ -27,7 +27,7 @@ class PhotoStackHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
-            self.wfile.write(bytes(webGenerator.generate(dbManager), 'UTF-8'))
+            self.wfile.write(bytes(webGenerator.generate(dbManager.getAllImageData()), 'UTF-8'))
 
 def runWebServer(server_class=HTTPServer, handler_class=PhotoStackHandler):
     server_address = ('', 8000)
@@ -35,9 +35,6 @@ def runWebServer(server_class=HTTPServer, handler_class=PhotoStackHandler):
     httpd.serve_forever()
 
 def main():
-    print("Initializing Database...")
-    dbManager.initializeDatabase("photos")
-    print("Done.")
     print("Starting Webserver...")
     runWebServer()
 

@@ -46,6 +46,13 @@ def getImageTags(imagePath):
         keywords.append(keyword.decode("utf-8"))
     return json.dumps(keywords)
 
+def getImageSource(imagePath):
+    info = IPTCInfo(imagePath)
+    if info['caption/abstract'] is None:
+        return ""
+    else:
+        return info['caption/abstract'].decode("utf-8")
+
 def scanImageDirectory(rootDir):
     images = []
     for currentDirectory, directories, files in os.walk(rootDir):
