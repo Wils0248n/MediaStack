@@ -1,16 +1,19 @@
-import hashlib, os
+import hashlib, os, json, logging
 from PIL import Image, UnidentifiedImageError
 from io import StringIO
-from DatabaseManager import databaseManager
+from iptcinfo3 import IPTCInfo
+
+iptcinfo_logger = logging.getLogger('iptcinfo')
+iptcinfo_logger.setLevel(logging.ERROR)
 
 thumbnailDirectory = "thumbs/"
 
 def readFile(filePath):
-    with open(os.getcwd() + os.path.sep + filePath) as file:
+    with open(os.getcwd() + filePath) as file:
         return file.read()
 
 def readFileBytes(filePath):
-    with open(os.getcwd() + os.path.sep + filePath, 'rb') as file:
+    with open(os.getcwd() + filePath, 'rb') as file:
         return file.read()
 
 def hashFile(filePath):
@@ -29,35 +32,28 @@ def thumbnailImage(imagePath):
     try:
         image = Image.open(imagePath)
     except UnidentifiedImageError:
-        print("Can't thumbnail image: " + imagePath)
         return False
     image.thumbnail((225, 175))
     thumb_buffer = StringIO()
     outputPath = os.getcwd() + os.path.sep + thumbnailDirectory + hashFile(imagePath)
     image.save(outputPath, format=image.format)
-    print("Thumbnailing: " + imagePath)
     return True
 
 def getImageTags(imagePath):
-    return "notags"
+    info = IPTCInfo(imagePath)
+    keywords = []
+    for keyword in info['keywords']:
+        keywords.append(keyword.decode("utf-8"))
+    return json.dumps(keywords)
 
-def initializeDataBase(databaseManager, rootDir):
-    currentPath = rootDir
-    for categoryDir in os.listdir(currentPath):
-        currentPath = os.path.sep.join([rootDir, categoryDir])
-        if os.path.isdir(currentPath):
-            for artistDir in os.listdir(currentPath):
-                currentPath = os.path.sep.join([rootDir, categoryDir, artistDir])
-                if os.path.isdir(currentPath):
-                    for artistFile in os.listdir(currentPath):
-                        currentPath = os.path.sep.join([rootDir, categoryDir, artistDir, artistFile])
-                        if os.path.isfile(currentPath) and thumbnailImage(currentPath):
-                            databaseManager.addImageToDB(hashFile(currentPath), currentPath, categoryDir, artistDir, "noalbum", getImageTags(currentPath))
-                        elif os.path.isdir(currentPath):
-                            for image in os.listdir(currentPath):
-                                currentPath = os.path.sep.join([rootDir, categoryDir, artistDir, artistFile, image])
-                                if (thumbnailImage(currentPath)):
-                                    databaseManager.addImageToDB(hashFile(currentPath), currentPath, categoryDir, artistDir, artistFile, getImageTags(currentPath))
+def scanImageDirectory(rootDir):
+    images = []
+    for currentDirectory, directories, files in os.walk(rootDir):
+        for file in files:
+            currentPath = os.path.join(currentDirectory, file)
+            if thumbnailImage(currentPath):
+                images.append(currentPath)
+    return images
 
 if __name__ == '__main__':
-    initializeDataBase(databaseManager(), "/home/wilson/Pictures")
+    print(scanImageDirectory("photos"))
