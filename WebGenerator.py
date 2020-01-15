@@ -5,11 +5,19 @@ class webgenerator:
         self.head = Html()
         self.body = Html()
 
-    def generate(self, imageData):
+    def generateIndex(self, allImageData):
         self.head = Html()
         self.body = Html()
         self.generateHTMLHeader()
-        self.generateBody(imageData)
+        self.generateIndexBodyHeader()
+        self.generateSearchForm()
+        self.generateImages(allImageData)
+        return Html.html_template(self.head, self.body).to_raw_html(indent_size=2)
+
+    def generateImagePage(self, imageData):
+        self.head = Html()
+        self.body = Html()
+        self.generateHTMLHeader()
         return Html.html_template(self.head, self.body).to_raw_html(indent_size=2)
 
     def generateHTMLHeader(self):
@@ -17,12 +25,7 @@ class webgenerator:
         self.head.tag_with_content("Photo Stack Testing...", name='title')
         self.head.self_close_tag('link', attributes=dict(href="style.css", rel="stylesheet", type="text/css"))
 
-    def generateBody(self, imageData):
-        self.generateBodyHeader()
-        self.generateSearchForm()
-        self.generateImages(imageData)
-
-    def generateBodyHeader(self):
+    def generateIndexBodyHeader(self):
         with self.body.tag('div', id_='"header"'):
             self.body.tag_with_content("Header Here", 'p')
 
@@ -38,5 +41,8 @@ class webgenerator:
                 self.addImageToBody(row[0], row[1])
 
     def addImageToBody(self, imageHash, imagePath):
-        with self.body.tag('a', attributes=dict(href=imagePath)):
+        with self.body.tag('a', attributes=dict(href="image=" + imageHash)):
             self.body.self_close_tag('img', classes=["image"], attributes=dict(src="thumbs/" + imageHash))
+
+if __name__ == '__main__':
+    print(webgenerator().generateImagePage(None))

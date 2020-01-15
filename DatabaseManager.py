@@ -39,9 +39,11 @@ class databaseManager:
         imagePath = image.replace(self.rootDir + os.path.sep, '')
         imagePath = imagePath.split(os.path.sep)
         if len(imagePath) == 3:
-            self.cursor.execute("INSERT INTO imagedata VALUES (?, ?, ?, ?, ?, ?, ?)", (hashFile(image), image, imagePath[0], imagePath[1], "noalbum", getImageTags(image), getImageSource(image)))
+            self.cursor.execute("INSERT INTO imagedata VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (hashFile(image), image, imagePath[0], imagePath[1], "noalbum", getImageTags(image), getImageSource(image)))
         elif len(imagePath) == 4:
-            self.cursor.execute("INSERT INTO imagedata VALUES (?, ?, ?, ?, ?, ?, ?)", (hashFile(image), image, imagePath[0], imagePath[1], imagePath[2], getImageTags(image), getImageSource(image)))
+            self.cursor.execute("INSERT INTO imagedata VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (hashFile(image), image, imagePath[0], imagePath[1], imagePath[2], getImageTags(image), getImageSource(image)))
 
     def removeImageFromDB(self, image):
         self.cursor.execute("DELETE FROM imagedata WHERE filename=?", (image,))
@@ -49,6 +51,10 @@ class databaseManager:
     def getAllImageData(self):
         self.cursor.execute("SELECT * FROM imagedata")
         return self.cursor.fetchall()
+
+    def getImageDataWithHash(self, hash):
+        self.cursor.execute("SELECT * FROM imagedata WHERE hash=?", (hash,))
+        return self.cursor.fetchone()
 
     def verifyDatabase(self):
         print("Verifing Database...")
@@ -84,3 +90,5 @@ class databaseManager:
 
         return (imagesNotInDatabase, missingImagesInDatabase)
 
+if __name__ == '__main__':
+    print(databaseManager("photos").getImageDataWithHash("1c60e412e890ef151dfd6d143bfbf94d"))

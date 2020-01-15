@@ -1,7 +1,7 @@
 import os
-from WebGenerator import webgenerator
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import unquote
+from WebGenerator import webgenerator
 from IOManager import readFileBytes
 from DatabaseManager import databaseManager
 
@@ -18,6 +18,13 @@ class PhotoStackHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/css')
             self.end_headers()
             self.wfile.write(readFileBytes("/style.css"))
+        elif str.startswith(self.path, "/image"):
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            imageHash = self.path.split('=')[0]
+            imageData = dbManager.getImageDataWithHash(imageHash)
+            self.wfile.write(bytes(webGenerator.generateImagePage(imageData), 'UTF-8'))
         elif str.startswith(self.path, "/photos") or str.startswith(self.path, "/thumbs"):
             self.send_response(200)
             self.send_header('Content-type', 'image/png')
@@ -27,7 +34,7 @@ class PhotoStackHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
-            self.wfile.write(bytes(webGenerator.generate(dbManager.getAllImageData()), 'UTF-8'))
+            self.wfile.write(bytes(webGenerator.generateIndex(dbManager.getAllImageData()), 'UTF-8'))
 
 def runWebServer(server_class=HTTPServer, handler_class=PhotoStackHandler):
     server_address = ('', 8000)
