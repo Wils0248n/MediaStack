@@ -33,13 +33,24 @@
   height: 150px;
 }
 
-/*
+#image {
+  background: purple;
+  width: 60%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+#image a img {
+  width: 100%;
+}
+
 #tags {
   background-color: red;
   text-align: left;
   float: left;
   margin-left: 1%;
-  width: 20%;
+  width: 18%;
 }
 
 #metadata {
@@ -47,6 +58,6 @@
   text-align: left;
   float: right;
   margin-right: 1%;
-  width: 20%;
+  width: 18%;
 }
-*/
+

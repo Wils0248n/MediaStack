@@ -22,7 +22,7 @@ class PhotoStackHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
-            imageHash = self.path.split('=')[0]
+            imageHash = self.path.split('=')[1]
             imageData = dbManager.getImageDataWithHash(imageHash)
             self.wfile.write(bytes(webGenerator.generateImagePage(imageData), 'UTF-8'))
         elif str.startswith(self.path, "/photos") or str.startswith(self.path, "/thumbs"):
