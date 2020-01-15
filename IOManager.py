@@ -44,7 +44,7 @@ def getImageTags(imagePath):
     keywords = []
     for keyword in info['keywords']:
         keywords.append(keyword.decode("utf-8"))
-    return json.dumps(keywords)
+    return keywords
 
 def getImageSource(imagePath):
     info = IPTCInfo(imagePath)

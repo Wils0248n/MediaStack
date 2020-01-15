@@ -1,4 +1,4 @@
-import sqlite3, os
+import sqlite3, os, json
 from sqlite3 import OperationalError
 from IOManager import scanImageDirectory, hashFile, getImageTags, getImageSource, thumbnailImage
 
@@ -18,12 +18,17 @@ class databaseManager:
                 category text,
                 artist text,
                 album text,
-                tags text,
                 source text
             )""")
+
+            self.cursor.execute("""CREATE TABLE tags (
+                hash text
+            )""")
+
             print("Initializing Database...")
             self.initializeDatabase()
             print("Done.")
+
             self.conn.commit()
         except OperationalError:
             pass
@@ -33,28 +38,66 @@ class databaseManager:
             self.addImageToDB(image)
         self.conn.commit()
 
+    def getColumnNames(self, table):
+        results = self.cursor.execute("PRAGMA table_info(" + table + ")").fetchall()
+        columns = []
+        for result in results:
+            columns.append(result[1])
+        return columns
+
     def addImageToDB(self, image):
         if not thumbnailImage(image):
             return
+
         imagePath = image.replace(self.rootDir + os.path.sep, '')
         imagePath = imagePath.split(os.path.sep)
-        if len(imagePath) == 3:
-            self.cursor.execute("INSERT INTO imagedata VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (hashFile(image), image, imagePath[0], imagePath[1], "noalbum", getImageTags(image), getImageSource(image)))
-        elif len(imagePath) == 4:
-            self.cursor.execute("INSERT INTO imagedata VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (hashFile(image), image, imagePath[0], imagePath[1], imagePath[2], getImageTags(image), getImageSource(image)))
+
+        hash = hashFile(image)
+        album = imagePath[2] if len(imagePath) == 4 else "noalbum"
+
+        self.cursor.execute("INSERT INTO imagedata VALUES (?, ?, ?, ?, ?, ?)",
+        (hash, image, imagePath[0], imagePath[1], album, getImageSource(image)))
+
+        self.cursor.execute("INSERT INTO tags (hash) VALUES (?)", (hash,))
+
+        self.addTagsToDB(getImageTags(image), hash)
+
+    def addTagsToDB(self, tags, hash):
+        for tag in tags:
+            self.createTagInDB(tag)
+            self.addImageHashToTagDB(tag, hash)
+
+    def createTagInDB(self, tagName):
+        try:
+            self.cursor.execute("ALTER TABLE tags ADD COLUMN \"" + tagName + "\"")
+        except sqlite3.OperationalError:
+            pass
+
+    def addImageHashToTagDB(self, tagName, imageHash):
+        self.cursor.execute("UPDATE tags SET \"" + tagName + "\"=? WHERE hash = ?", (imageHash, imageHash,))
+
+    def getImageTags(self, imageHash):
+        tagSearchResult = self.cursor.execute("SELECT * FROM tags WHERE hash=?", (imageHash,)).fetchone()[1:]
+        allTags = self.getColumnNames("tags")[1:]
+
+        tags = []
+        for index in range(len(tagSearchResult)):
+            if not tagSearchResult[index] == None:
+                tags.append(allTags[index])
+
+        return tags
+
+    def getAllImagesWithTag(self, tag):
+        return self.cursor.execute("SELECT \"" + tag + "\" FROM tags WHERE \"" + tag + "\" IS NOT NULL").fetchall()
 
     def removeImageFromDB(self, image):
         self.cursor.execute("DELETE FROM imagedata WHERE filename=?", (image,))
 
     def getAllImageData(self):
-        self.cursor.execute("SELECT * FROM imagedata")
-        return self.cursor.fetchall()
+        return self.cursor.execute("SELECT * FROM imagedata").fetchall()
 
     def getImageDataWithHash(self, hash):
-        self.cursor.execute("SELECT * FROM imagedata WHERE hash=?", (hash,))
-        return self.cursor.fetchone()
+        return self.cursor.execute("SELECT * FROM imagedata WHERE hash=?", (hash,)).fetchone()
 
     def verifyDatabase(self):
         print("Verifing Database...")
@@ -91,4 +134,6 @@ class databaseManager:
         return (imagesNotInDatabase, missingImagesInDatabase)
 
 if __name__ == '__main__':
-    print(databaseManager("photos").getImageDataWithHash("1c60e412e890ef151dfd6d143bfbf94d"))
+    dbm = databaseManager("photos")
+    print(dbm.getImageTags("1e0da43f3ab047b7b4da16fdfd24d123"))
+    dbm.conn.close()
