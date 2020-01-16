@@ -39,13 +39,13 @@ class PhotoStackHandler(BaseHTTPRequestHandler):
 
             self.wfile.write(readFileBytes(unquote(self.path)))
 
-        elif str.startswith(self.path, "/?search"):
+        elif str.startswith(self.path, "/?search") and len(self.path) > 9:
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
 
             searchQuery = self.path.split('=')[1].split("+")
-            searchQuery = [unquote(query).replace('_', ' ') for query in searchQuery]
+            searchQuery = [unquote(query).replace('_', ' ').lower() for query in searchQuery]
             print(searchQuery)
             htmlcode = webGenerator.generateIndex(dbManager.searchDatabase(searchQuery))
             self.wfile.write(bytes(htmlcode, 'UTF-8'))

@@ -58,6 +58,9 @@ class databaseManager:
         imagePath = image.replace(self.rootDir + os.path.sep, '')
         imagePath = imagePath.split(os.path.sep)
 
+        if len(imagePath) < 2:
+            return
+
         hash = hashFile(image)
         album = imagePath[2] if len(imagePath) == 4 else "noalbum"
 
@@ -70,7 +73,7 @@ class databaseManager:
 
     def addTagsToDB(self, tags, hash):
         for tag in tags:
-            self.createTagInDB(tag)
+            self.createTagInDB(tag.lower())
             self.addImageHashToTagDB(tag, hash)
 
     def createTagInDB(self, tagName):
@@ -100,6 +103,7 @@ class databaseManager:
         return tags
 
     def getAllImagesWithTag(self, tag):
+        tag = tag.replace("'", "").replace('"', '')
         return self.cursor.execute("SELECT \"" + tag + "\" FROM tags WHERE \"" + tag + "\" IS NOT NULL").fetchall()
 
     def removeImageFromDB(self, image):
