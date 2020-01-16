@@ -45,6 +45,12 @@ class databaseManager:
             columns.append(result[1])
         return columns
 
+    def convertFromListOfTuplesToList(self, tupleList):
+        result = []
+        for tuple in tupleList:
+            result.append(tuple[0])
+        return result
+
     def addImageToDB(self, image):
         if not thumbnailImage(image):
             return
@@ -77,7 +83,13 @@ class databaseManager:
         self.cursor.execute("UPDATE tags SET \"" + tagName + "\"=? WHERE hash = ?", (imageHash, imageHash,))
 
     def getImageTags(self, imageHash):
-        tagSearchResult = self.cursor.execute("SELECT * FROM tags WHERE hash=?", (imageHash,)).fetchone()[1:]
+        tagSearchResult = self.cursor.execute("SELECT * FROM tags WHERE hash=?", (imageHash,)).fetchone()
+
+        if tagSearchResult == None:
+            return []
+        else:
+            tagSearchResult = tagSearchResult[1:]
+
         allTags = self.getColumnNames("tags")[1:]
 
         tags = []
@@ -133,7 +145,59 @@ class databaseManager:
 
         return (imagesNotInDatabase, missingImagesInDatabase)
 
+    def removeImagesFromListThatContainsTag(self, imageList, tag):
+        return [image for image in imageList if not self.doesImageContainTag(image, tag)]
+
+    def removeImagesFromListThatContainTags(self, imageList, tags):
+        for tag in tags:
+            print(tag)
+            imageList = self.removeImagesFromListThatContainsTag(imageList, tag)
+        return imageList
+
+    def doesImageContainTag(self, image, imageTag):
+        return len([tag for tag in self.getImageTags(image) if tag == imageTag]) > 0
+
+    def doesImageContainTags(self, image, tags):
+        for tag in tags:
+            if not self.doesImageContainTag(image, tag):
+                return False
+        return True
+
+    def removeImagesThatDontContainTags(self, imageList, tags):
+        return [image for image in imageList if self.doesImageContainTags(image, tags)]
+
+    def getImagesThatContainTags(self, tags):
+        imageList = []
+        for tag in tags:
+            imageList = list(set( imageList + self.getAllImagesWithTag(tag) ))
+
+        return self.convertFromListOfTuplesToList(imageList)
+
+    def searchDatabase(self, tags):
+        whitelistTags = []
+        blacklistTags = []
+
+        for tag in tags:
+            if tag[0] == "-":
+                blacklistTags.append(tag[1:])
+            else:
+                whitelistTags.append(tag)
+
+        imageList = self.getImagesThatContainTags(whitelistTags)
+        imageList = self.removeImagesThatDontContainTags(imageList, whitelistTags)
+        imageList = self.removeImagesFromListThatContainTags(imageList, blacklistTags)
+
+        return self.getImageDataFromListOfHashes(imageList)
+
+    def getImageDataFromListOfHashes(self, hashList):
+        imageDataList = []
+
+        for hash in hashList:
+            imageDataList.append(self.getImageDataWithHash(hash))
+
+        return imageDataList
+
 if __name__ == '__main__':
     dbm = databaseManager("photos")
-    print(dbm.getImageTags("1e0da43f3ab047b7b4da16fdfd24d123"))
+    print(dbm.searchDatabase([]))
     dbm.conn.close()

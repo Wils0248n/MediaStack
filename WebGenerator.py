@@ -5,21 +5,21 @@ class webgenerator:
         self.head = Html()
         self.body = Html()
 
-    def generateIndex(self, allImageData):
+    def generateIndex(self, imageDataList):
         self.head = Html()
         self.body = Html()
         self.generateHTMLHeader()
         self.generateIndexBodyHeader()
         self.generateSearchForm()
-        self.generateIndexBodyImages(allImageData)
+        self.generateIndexBodyImages(imageDataList)
         return Html.html_template(self.head, self.body).to_raw_html(indent_size=2)
 
-    def generateImagePage(self, imageData):
+    def generateImagePage(self, imageData, imageTags, imageMetadata):
         self.head = Html()
         self.body = Html()
         self.generateHTMLHeader()
-        self.generateImagePageSideBar("tags", ["sometag", "othertag"])
-        self.generateImagePageSideBar("metadata", ["somedata", "otherdata"])
+        self.generateImagePageSideBar("tags", imageTags)
+        self.generateImagePageSideBar("metadata", imageMetadata)
         self.generateImagePageImage(imageData[1])
         return Html.html_template(self.head, self.body).to_raw_html(indent_size=2)
 
@@ -51,7 +51,8 @@ class webgenerator:
         with self.body.tag('div', id_=id):
             with self.body.tag('ul'):
                 for element in listElements:
-                    self.body.tag_with_content(element, 'li')
+                    with self.body.tag('li') as listElement:
+                        self.body.tag_with_content(element, 'a', attributes=dict(href="/?search=" + element))
 
     def generateImagePageImage(self, image):
         with self.body.tag('div', id_="image"):
@@ -59,4 +60,4 @@ class webgenerator:
                 self.body.self_close_tag('img', attributes=dict(src=image))
 
 if __name__ == '__main__':
-    print(webgenerator().generateImagePage())
+    print(webgenerator().generateImagePageSideBar("id", ["hello"]))
