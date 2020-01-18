@@ -19,7 +19,7 @@
   width: 5%;
 }
 
-#images {
+#thumbnails {
   width: 90%;
   margin-top: 50px;
   margin-left: auto;
@@ -33,7 +33,7 @@
   height: 150px;
 }
 
-#image {
+#media {
   background: purple;
   width: 60%;
   margin-left: auto;

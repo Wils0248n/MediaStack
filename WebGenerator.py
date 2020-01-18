@@ -1,63 +1,60 @@
 from html_writer import Html
 
-class webgenerator:
+
+class WebGenerator:
     def __init__(self):
         self.head = Html()
         self.body = Html()
 
-    def generateIndex(self, imageDataList):
+    def generate_index(self, media_list):
         self.head = Html()
         self.body = Html()
-        self.generateHTMLHeader()
-        self.generateIndexBodyHeader()
-        self.generateSearchForm()
-        self.generateIndexBodyImages(imageDataList)
+        self.generate_html_header()
+        self.generate_index_body_header()
+        self.generate_index_search_form()
+        self.generate_index_thumbnails(media_list)
         return Html.html_template(self.head, self.body).to_raw_html(indent_size=2)
 
-    def generateImagePage(self, imageData, imageTags, imageMetadata):
+    def generate_media_page(self, media):
         self.head = Html()
         self.body = Html()
-        self.generateHTMLHeader()
-        self.generateImagePageSideBar("tags", imageTags)
-        self.generateImagePageSideBar("metadata", imageMetadata)
-        self.generateImagePageImage(imageData[1])
+        self.generate_html_header()
+        self.generate_media_page_sidebar("tags", media.tags)
+        self.generate_media_page_sidebar("metadata", "")  # TODO: Add metadata to image object
+        self.generate_media_page_media(media)
         return Html.html_template(self.head, self.body).to_raw_html(indent_size=2)
 
-    def generateHTMLHeader(self):
+    def generate_html_header(self):
         self.head.self_close_tag('meta', attributes=dict(charset='utf-8'))
         self.head.tag_with_content("Photo Stack Testing...", name='title')
         self.head.self_close_tag('link', attributes=dict(href="style.css", rel="stylesheet", type="text/css"))
 
-    def generateIndexBodyHeader(self):
+    def generate_index_body_header(self):
         with self.body.tag('div', id_='"header"'):
             self.body.tag_with_content("Header Here", 'p')
 
-    def generateSearchForm(self):
+    def generate_index_search_form(self):
         with self.body.tag('div', id_='"search"'):
             with self.body.tag('form', attributes=dict(action="")):
                 self.body.self_close_tag('input', attributes=dict(type="text", placeholder="Search..", name="search"))
                 self.body.tag_with_content("Search", 'button', attributes=dict(type="submit", text="search"))
 
-    def generateIndexBodyImages(self, imageData):
-        with self.body.tag('div', id_='"images"'):
-            for row in imageData:
-                self.addImageToIndexBody(row[0], row[1])
+    def generate_index_thumbnails(self, media_list):
+        with self.body.tag('div', id_='"thumbnails"'):
+            for media in media_list:
+                with self.body.tag('a', attributes=dict(href="image=" + media.hash)):
+                    self.body.self_close_tag('img', classes=["image"], attributes=dict(src="thumbs/" + media.hash))
 
-    def addImageToIndexBody(self, imageHash, imagePath):
-        with self.body.tag('a', attributes=dict(href="image=" + imageHash)):
-            self.body.self_close_tag('img', classes=["image"], attributes=dict(src="thumbs/" + imageHash))
-
-    def generateImagePageSideBar(self, id, listElements):
-        with self.body.tag('div', id_=id):
+    def generate_media_page_sidebar(self, div_id, list_elements):
+        with self.body.tag('div', id_=div_id):
             with self.body.tag('ul'):
-                for element in listElements:
-                    with self.body.tag('li') as listElement:
+                for element in list_elements:
+                    with self.body.tag('li'):
                         self.body.tag_with_content(element, 'a', attributes=dict(href="/?search=" + element))
 
-    def generateImagePageImage(self, image):
-        with self.body.tag('div', id_="image"):
-            with self.body.tag('a', attributes=dict(href=image)):
-                self.body.self_close_tag('img', attributes=dict(src=image))
+    def generate_media_page_media(self, media):
+        with self.body.tag('div', id_="media"):
+            with self.body.tag('a', attributes=dict(href=media.path)):
+                # TODO: Check for media type
+                self.body.self_close_tag('img', attributes=dict(src=media.path))  # assuming everything is an image
 
-if __name__ == '__main__':
-    print(webgenerator().generateImagePageSideBar("id", ["hello"]))
