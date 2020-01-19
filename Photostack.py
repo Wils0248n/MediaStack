@@ -4,7 +4,10 @@ from urllib.parse import unquote
 from WebGenerator import WebGenerator
 from MediaManager import MediaManager
 
-media_manager = MediaManager()
+media_directory = "media/"
+thumbnail_directory = "thumbs/"
+web_generator = WebGenerator(thumbnail_directory)
+media_manager = MediaManager(media_directory, thumbnail_directory)
 
 
 class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
@@ -16,13 +19,13 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
             self.send_200_response('text/css')
             self.wfile.write(read_file_bytes("/style.css"))
 
-        elif str.startswith(self.path, "/image"):
+        elif str.startswith(self.path, "/media="):
             self.send_200_response('text/html')
             media_hash = self.path.split('=')[1]
-            html_code = WebGenerator().generate_media_page(media_manager.get_media(media_hash))
+            html_code = web_generator.generate_media_page(media_manager.get_media(media_hash))
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
-        elif str.startswith(self.path, "/photos") or str.startswith(self.path, "/thumbs"):
+        elif str.startswith(self.path, "/" + media_directory) or str.startswith(self.path, "/" + thumbnail_directory):
             self.send_200_response('image/png')
             self.wfile.write(read_file_bytes(unquote(self.path)))
 
@@ -34,12 +37,12 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
 
             media = media_manager.search(search_query)
 
-            html_code = WebGenerator().generate_index(media)
+            html_code = web_generator.generate_index(media)
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
         else:
             self.send_200_response('text/html')
-            html_code = WebGenerator().generate_index(media_manager.media_list)
+            html_code = web_generator.generate_index(media_manager.media_list)
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
     def send_200_response(self, content_type):

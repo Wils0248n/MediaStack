@@ -39,8 +39,3 @@ class DatabaseManager:
             media.tags = self.tag_manager.get_media_tags(media)
             media_list.append(media)
         return media_list
-
-if __name__ == '__main__':
-    dbm = DatabaseManager()
-    print(dbm.search_database([]))
-    dbm.conn.close()

@@ -27,7 +27,7 @@
   text-align: center;
 }
 
-.image {
+.thumbnail {
   padding: 3px;
   width: 225px;
   height: 150px;
@@ -41,7 +41,7 @@
   text-align: center;
 }
 
-#image a img {
+#media a img {
   width: 100%;
 }
 

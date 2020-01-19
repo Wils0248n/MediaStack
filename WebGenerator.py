@@ -2,9 +2,10 @@ from html_writer import Html
 
 
 class WebGenerator:
-    def __init__(self):
+    def __init__(self, thumbnail_directory):
         self.head = Html()
         self.body = Html()
+        self.thumbnail_directory = thumbnail_directory
 
     def generate_index(self, media_list):
         self.head = Html()
@@ -42,8 +43,8 @@ class WebGenerator:
     def generate_index_thumbnails(self, media_list):
         with self.body.tag('div', id_='"thumbnails"'):
             for media in media_list:
-                with self.body.tag('a', attributes=dict(href="image=" + media.hash)):
-                    self.body.self_close_tag('img', classes=["image"], attributes=dict(src="thumbs/" + media.hash))
+                with self.body.tag('a', attributes=dict(href="media=" + media.hash)):
+                    self.body.self_close_tag('img', classes=["thumbnail"], attributes=dict(src=self.thumbnail_directory + media.hash))
 
     def generate_media_page_sidebar(self, div_id, list_elements):
         with self.body.tag('div', id_=div_id):

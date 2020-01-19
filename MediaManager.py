@@ -6,7 +6,9 @@ import os
 
 class MediaManager:
 
-    def __init__(self):
+    def __init__(self, media_directory, thumbnail_directory):
+        self.media_directory = media_directory
+        self.thumbnail_directory = thumbnail_directory
         self.media_list = []
         self.db_manager = DatabaseManager()
         self.initialize()
@@ -15,7 +17,7 @@ class MediaManager:
         try:
             self.db_manager.create_database()
             print("Created tables...\nInitializing Media...")
-            self.initialize_media_from_directory("photos/")
+            self.initialize_media_from_directory(self.media_directory)
             print("Done.\nAdding Media to DB...")
             self.add_media_to_database()
             print("Done.")
@@ -31,7 +33,7 @@ class MediaManager:
 
     def initialize_media_from_database(self):
         for media in self.db_manager.get_all_media():
-            if media.create_thumbnail("thumbs/"):
+            if media.create_thumbnail(self.thumbnail_directory):
                 self.add_media(media)
 
     def initialize_media_from_directory(self, root_directory):
@@ -39,7 +41,7 @@ class MediaManager:
             for file in files:
                 try:
                     media = Media(os.path.join(currentDirectory, file))
-                    if media.create_thumbnail("thumbs/"):
+                    if media.create_thumbnail(self.thumbnail_directory):
                         self.add_media(media)
                 except ValueError:
                     pass  # TODO: Handle invalid file path.
@@ -57,9 +59,3 @@ class MediaManager:
     def search(self, search_query):
         return SearchManager().search(self.media_list, search_query)
 
-
-if __name__ == '__main__':
-    i = MediaManager()
-    i.initialize_media_from_directory("photos")
-    for image in i.get_all_media():
-        print(image)
