@@ -1,5 +1,5 @@
 from html_writer import Html
-from typing import List
+from typing import List, Dict
 from Media import Media
 from Album import Album
 
@@ -46,37 +46,69 @@ class WebGenerator:
                         self.__body.self_close_tag('img', classes=["album_thumbnail"],
                                                    attributes=dict(src=self.__thumbnail_directory + media.hash))
 
-    def generate_search_result_page(self, media_list: List[Media]) -> str:
+    def generate_search_result_page(self, media_list: List[Media], album_dict: Dict[str, Album]) -> str:
         self.__head = Html()
         self.__body = Html()
         self.__generate_html_header()
         self.__generate_index_body_header()
         self.__generate_index_search_form()
-        self.__generate_search_thumbnails(media_list)
+        self.__generate_search_thumbnails(media_list, album_dict)
         return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
 
-    def __generate_search_thumbnails(self, media_list: List[Media]):
+    def __generate_search_thumbnails(self, media_list: List[Media], album_dict: Dict[str, Album]):
         with self.__body.tag('div', id_='"thumbnails"'):
             for media in media_list:
-                with self.__body.tag('a', attributes=dict(href="media=" + media.hash)):
-                    self.__body.self_close_tag('img', classes=["media_thumbnail"],
-                                               attributes=dict(src=self.__thumbnail_directory + media.hash))
+                if media.album is None:
+                    with self.__body.tag('a', attributes=dict(href="media=" + media.hash)):
+                        self.__body.self_close_tag('img', classes=["media_thumbnail"],
+                                                   attributes=dict(src=self.__thumbnail_directory + media.hash))
+                else:
+                    media_album_index = album_dict[media.album].media_list.index(media)
+                    with self.__body.tag('a', attributes=dict(href="album=" + media.album + "/" + str(media_album_index))):
+                        self.__body.self_close_tag('img', classes=["album_thumbnail"],
+                                                   attributes=dict(src=self.__thumbnail_directory + media.hash))
 
     def generate_media_page(self, media: Media) -> str:
         self.__head = Html()
         self.__body = Html()
         self.__generate_html_header()
-        self.__generate_media_page_sidebar("tags", media.tags)
-        self.__generate_media_page_sidebar("metadata", "")  # TODO: Add metadata to media object
+        self.__generate_media_info_sidebar(media)
         self.__generate_media_page_media(media)
         return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
 
-    def __generate_media_page_sidebar(self, div_id: str, list_elements: List[str]):
-        with self.__body.tag('div', id_=div_id):
-            with self.__body.tag('ul'):
-                for element in list_elements:
+    def __generate_media_info_sidebar(self, media: Media):
+        self.__body.tag_with_content("Media Information:", 'p')
+        with self.__body.tag('div', id_="media_info"):
+            with self.__body.tag('p') as label:
+                label += "Type:"
+                if media.type is not None:
+                    self.__body.tag_with_content(str(media.type), 'a', attributes=dict(href="/?search=type:"
+                                                                                        + str(media.type)))
+            with self.__body.tag('p') as label:
+                label += "Category:"
+                if media.category is not None:
+                    self.__body.tag_with_content(str(media.category), 'a', attributes=dict(href="/?search=category:"
+                                                                                            + str(media.category)))
+            with self.__body.tag('p') as label:
+                label += "Artist:"
+                if media.artist is not None:
+                    self.__body.tag_with_content(str(media.artist), 'a', attributes=dict(href="/?search=artist:"
+                                                                                          + str(media.artist)))
+            with self.__body.tag('p') as label:
+                label += "Album:"
+                if media.album is not None:
+                    self.__body.tag_with_content(str(media.album), 'a', attributes=dict(href="/?search=album:"
+                                                                                         + str(media.album)))
+            with self.__body.tag('p') as label:
+                label += "Source:"
+                if media.source is not None:
+                    self.__body.tag_with_content("source website", 'a', attributes=dict(href=media.source))
+
+            self.__body.tag_with_content("Tags:", 'p')
+            with self.__body.tag('ul', attributes=dict(style="list-style-type:none;")):
+                for tag in media.tags:
                     with self.__body.tag('li'):
-                        self.__body.tag_with_content(element, 'a', attributes=dict(href="/?search=" + element))
+                        self.__body.tag_with_content(tag, 'a', attributes=dict(href="/?search=" + tag))
 
     def __generate_media_page_media(self, media: Media):
         with self.__body.tag('div', id_="media"):
@@ -91,6 +123,7 @@ class WebGenerator:
         self.__head = Html()
         self.__body = Html()
         self.__generate_html_header()
+        self.__generate_media_info_sidebar(album.media_list[current_index])
         self.__generate_album_page_media(album, current_index)
         self.__generate_album_page_footer(album, current_index)
         return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)

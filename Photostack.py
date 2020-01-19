@@ -44,12 +44,12 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
 
             media = media_manager.search(search_query)
 
-            html_code = web_generator.generate_search_result_page(media)
+            html_code = web_generator.generate_search_result_page(media, media_manager.albums)
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
         elif str.startswith(self.path, "/all"):
             self.send_200_response('text/html')
-            html_code = web_generator.generate_index(media_manager.get_all_media())
+            html_code = web_generator.generate_search_result_page(media_manager.get_all_media(), media_manager.albums)
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
         else:
