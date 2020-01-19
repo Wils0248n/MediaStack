@@ -2,30 +2,39 @@ import errno
 import os
 import hashlib
 import logging
+import filetype
+from typing import List
+from enum import Enum
 from iptcinfo3 import IPTCInfo
-from PIL import Image, UnidentifiedImageError
 
 logging.getLogger('iptcinfo').setLevel(logging.ERROR)
 
 
 class Media:
 
-    def __init__(self, file_path, media_hash=None, category=None, artist=None, album=None, source=None, tags=None):
+    def __init__(self, file_path: str, media_hash: str = None, media_type: str = None, category: str = None,
+                 artist: str = None, album: str = None, source: str = None, tags: List[str] = None):
         self.path = file_path
         self.hash = media_hash
+        self.type = media_type
         self.category = category
         self.artist = artist
         self.album = album
         self.tags = tags
         self.source = source
-        self.initialize_media_data()
+        self.__initialize_media_data()
 
-    def initialize_media_data(self):
+    def __initialize_media_data(self):
         if not os.path.isfile(self.path):
-            raise FileNotFoundError(
-                errno.ENOENT, os.strerror(errno.ENOENT), self.path)
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), self.path)
         if self.hash is None:
-            self.update_hash()
+            self.__update_hash()
+        if self.type is None:
+            media_type = self.determine_file_type()
+            if media_type is None:
+                raise ValueError("Unable to Determine Media Type for: " + self.path)
+            else:
+                self.type = media_type
         try:
             if self.category is None:
                 self.category = self.path.split(os.path.sep)[1]
@@ -39,45 +48,47 @@ class Media:
                 else:
                     self.album = album_name
         except IndexError:
-            raise ValueError("Invalid file_path")
+            raise ValueError("Invalid media path: " + self.path)
         if self.source is None:
-            self.update_source()
+            self.__update_source()
         if self.tags is None:
-            self.update_tags()
+            self.__update_tags()
 
-    def update_hash(self):
+    def __update_hash(self):
         hasher = hashlib.md5()
         with open(self.path, 'rb') as file:
             buffer = file.read()
             hasher.update(buffer)
         self.hash = hasher.hexdigest()
 
-    def update_tags(self):
+    def __update_tags(self):
         info = IPTCInfo(self.path)
         keywords = []
         for keyword in info['keywords']:
             keywords.append(keyword.decode("utf-8").lower())
         self.tags = keywords
 
-    def update_source(self):
+    def __update_source(self):
         source = IPTCInfo(self.path)['caption/abstract']
         if source is not None:
             self.source = source.decode("utf-8")
 
-    def create_thumbnail(self, thumbnail_directory, width=225, height=175):
-        if thumbnail_directory[-1] is not os.path.sep:
-            thumbnail_directory += os.path.sep
-        if os.path.isfile(thumbnail_directory + self.hash):
-            return True
-        try:
-            image = Image.open(self.path)
-        except UnidentifiedImageError:
-            return False
-        image.thumbnail((width, height))
-        output_path = thumbnail_directory + self.hash
-        image.save(output_path, format=image.format)
-        return True
+    def determine_file_type(self):  # TODO: use type hint.
+        file_type = filetype.guess(self.path).extension
+        if file_type == "jpg" or file_type == "png":
+            return Media.Type.IMAGE
+        if file_type == "gif":
+            return Media.Type.ANIMATED_IMAGE
+        if file_type == "mp4" or file_type == "webm":
+            return Media.Type.VIDEO
+        print(file_type)
+        return None
 
     def __str__(self):
         return self.hash + ", " + str(self.path) + ", " + str(self.category) + ", " \
                + str(self.artist) + ", " + str(self.album) + ", " + str(self.source) + ", " + str(self.tags)
+
+    class Type(Enum):
+        IMAGE = "image"
+        ANIMATED_IMAGE = "animated_image"
+        VIDEO = "video"

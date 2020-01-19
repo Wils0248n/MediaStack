@@ -22,7 +22,14 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
         elif str.startswith(self.path, "/media="):
             self.send_200_response('text/html')
             media_hash = self.path.split('=')[1]
-            html_code = web_generator.generate_media_page(media_manager.get_media(media_hash))
+            html_code = web_generator.generate_media_page(media_manager.find_media(media_hash))
+            self.wfile.write(bytes(html_code, 'UTF-8'))
+
+        elif str.startswith(self.path, "/album="):
+            self.send_200_response('text/html')
+            album_name = unquote(self.path.split('=')[1].split('/')[0])
+            current_index = self.path.split('/')[2]
+            html_code = web_generator.generate_album_page(media_manager.albums[album_name], int(current_index))
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
         elif str.startswith(self.path, "/" + media_directory) or str.startswith(self.path, "/" + thumbnail_directory):
@@ -37,12 +44,17 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
 
             media = media_manager.search(search_query)
 
-            html_code = web_generator.generate_index(media)
+            html_code = web_generator.generate_search_result_page(media)
+            self.wfile.write(bytes(html_code, 'UTF-8'))
+
+        elif str.startswith(self.path, "/all"):
+            self.send_200_response('text/html')
+            html_code = web_generator.generate_index(media_manager.get_all_media())
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
         else:
             self.send_200_response('text/html')
-            html_code = web_generator.generate_index(media_manager.media_list)
+            html_code = web_generator.generate_index(media_manager.get_media())
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
     def send_200_response(self, content_type):
@@ -65,7 +77,7 @@ def main():
         print("Exitting...")
 
 
-def read_file_bytes(file_path):
+def read_file_bytes(file_path: str) -> bytes:
     with open(os.getcwd() + file_path, 'rb') as file:
         return file.read()
 

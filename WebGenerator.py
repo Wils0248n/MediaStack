@@ -1,61 +1,110 @@
 from html_writer import Html
+from typing import List
+from Media import Media
+from Album import Album
 
 
 class WebGenerator:
-    def __init__(self, thumbnail_directory):
-        self.head = Html()
-        self.body = Html()
-        self.thumbnail_directory = thumbnail_directory
+    def __init__(self, thumbnail_directory: str):
+        self.__head = Html()
+        self.__body = Html()
+        self.__thumbnail_directory = thumbnail_directory
 
-    def generate_index(self, media_list):
-        self.head = Html()
-        self.body = Html()
-        self.generate_html_header()
-        self.generate_index_body_header()
-        self.generate_index_search_form()
-        self.generate_index_thumbnails(media_list)
-        return Html.html_template(self.head, self.body).to_raw_html(indent_size=2)
+    def __generate_html_header(self):
+        self.__head.self_close_tag('meta', attributes=dict(charset='utf-8'))
+        self.__head.tag_with_content("Photo Stack Testing...", name='title')
+        self.__head.self_close_tag('link', attributes=dict(href="/style.css", rel="stylesheet", type="text/css"))
 
-    def generate_media_page(self, media):
-        self.head = Html()
-        self.body = Html()
-        self.generate_html_header()
-        self.generate_media_page_sidebar("tags", media.tags)
-        self.generate_media_page_sidebar("metadata", "")  # TODO: Add metadata to image object
-        self.generate_media_page_media(media)
-        return Html.html_template(self.head, self.body).to_raw_html(indent_size=2)
+    def generate_index(self, media_list: List[Media]) -> str:
+        self.__head = Html()
+        self.__body = Html()
+        self.__generate_html_header()
+        self.__generate_index_body_header()
+        self.__generate_index_search_form()
+        self.__generate_index_thumbnails(media_list)
+        return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
 
-    def generate_html_header(self):
-        self.head.self_close_tag('meta', attributes=dict(charset='utf-8'))
-        self.head.tag_with_content("Photo Stack Testing...", name='title')
-        self.head.self_close_tag('link', attributes=dict(href="style.css", rel="stylesheet", type="text/css"))
+    def __generate_index_body_header(self):
+        with self.__body.tag('div', id_='"header"'):
+            self.__body.tag_with_content("Header Here", 'p')
 
-    def generate_index_body_header(self):
-        with self.body.tag('div', id_='"header"'):
-            self.body.tag_with_content("Header Here", 'p')
+    def __generate_index_search_form(self):
+        with self.__body.tag('div', id_='"search"'):
+            with self.__body.tag('form', attributes=dict(action="")):
+                self.__body.self_close_tag('input', attributes=dict(type="text", placeholder="Search..", name="search"))
+                self.__body.tag_with_content("Search", 'button', attributes=dict(type="submit", text="search"))
 
-    def generate_index_search_form(self):
-        with self.body.tag('div', id_='"search"'):
-            with self.body.tag('form', attributes=dict(action="")):
-                self.body.self_close_tag('input', attributes=dict(type="text", placeholder="Search..", name="search"))
-                self.body.tag_with_content("Search", 'button', attributes=dict(type="submit", text="search"))
-
-    def generate_index_thumbnails(self, media_list):
-        with self.body.tag('div', id_='"thumbnails"'):
+    def __generate_index_thumbnails(self, media_list: List[Media]):
+        with self.__body.tag('div', id_='"thumbnails"'):
             for media in media_list:
-                with self.body.tag('a', attributes=dict(href="media=" + media.hash)):
-                    self.body.self_close_tag('img', classes=["thumbnail"], attributes=dict(src=self.thumbnail_directory + media.hash))
+                if media.album is None:
+                    with self.__body.tag('a', attributes=dict(href="media=" + media.hash)):
+                        self.__body.self_close_tag('img', classes=["media_thumbnail"],
+                                                   attributes=dict(src=self.__thumbnail_directory + media.hash))
+                else:
+                    with self.__body.tag('a', attributes=dict(href="album=" + media.album + "/0")):
+                        self.__body.self_close_tag('img', classes=["album_thumbnail"],
+                                                   attributes=dict(src=self.__thumbnail_directory + media.hash))
 
-    def generate_media_page_sidebar(self, div_id, list_elements):
-        with self.body.tag('div', id_=div_id):
-            with self.body.tag('ul'):
+    def generate_search_result_page(self, media_list: List[Media]) -> str:
+        self.__head = Html()
+        self.__body = Html()
+        self.__generate_html_header()
+        self.__generate_index_body_header()
+        self.__generate_index_search_form()
+        self.__generate_search_thumbnails(media_list)
+        return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
+
+    def __generate_search_thumbnails(self, media_list: List[Media]):
+        with self.__body.tag('div', id_='"thumbnails"'):
+            for media in media_list:
+                with self.__body.tag('a', attributes=dict(href="media=" + media.hash)):
+                    self.__body.self_close_tag('img', classes=["media_thumbnail"],
+                                               attributes=dict(src=self.__thumbnail_directory + media.hash))
+
+    def generate_media_page(self, media: Media) -> str:
+        self.__head = Html()
+        self.__body = Html()
+        self.__generate_html_header()
+        self.__generate_media_page_sidebar("tags", media.tags)
+        self.__generate_media_page_sidebar("metadata", "")  # TODO: Add metadata to image object
+        self.__generate_media_page_media(media)
+        return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
+
+    def __generate_media_page_sidebar(self, div_id: str, list_elements: List[str]):
+        with self.__body.tag('div', id_=div_id):
+            with self.__body.tag('ul'):
                 for element in list_elements:
-                    with self.body.tag('li'):
-                        self.body.tag_with_content(element, 'a', attributes=dict(href="/?search=" + element))
+                    with self.__body.tag('li'):
+                        self.__body.tag_with_content(element, 'a', attributes=dict(href="/?search=" + element))
 
-    def generate_media_page_media(self, media):
-        with self.body.tag('div', id_="media"):
-            with self.body.tag('a', attributes=dict(href=media.path)):
-                # TODO: Check for media type
-                self.body.self_close_tag('img', attributes=dict(src=media.path))  # assuming everything is an image
+    def __generate_media_page_media(self, media: Media):
+        with self.__body.tag('div', id_="media"):
+            with self.__body.tag('a', attributes=dict(href=media.path)):
+                if media.type == "image" or media.type == "animated_image":
+                    self.__body.self_close_tag('img', id_="image", attributes=dict(src=media.path))
+                elif media.type == "video":
+                    with self.__body.tag('video', id_="video", attributes=dict(controls=True)):
+                        self.__body.self_close_tag('source', attributes=dict(src=media.path, type="video/mp4"))
 
+    def generate_album_page(self, album: Album, current_index: int) -> str:
+        self.__head = Html()
+        self.__body = Html()
+        self.__generate_html_header()
+        self.__generate_album_page_media(album, current_index)
+        self.__generate_album_page_footer(album, current_index)
+        return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
+
+    def __generate_album_page_media(self, album: Album, current_index: int):
+        media = album.media_list[current_index]
+        next_index = current_index + 1 if current_index + 1 < len(album.media_list) else 0
+        with self.__body.tag('div', id_="media"):
+            with self.__body.tag('a', attributes=dict(href="/album=" + media.album + "/" + str(next_index))):
+                if media.type == "image" or media.type == "animated_image":
+                    self.__body.self_close_tag('img', attributes=dict(src="/" + media.path))
+                elif media.type == "video":
+                    with self.__body.tag('video', attributes=dict(controls=True)):
+                        self.__body.self_close_tag('source', attributes=dict(src="/" + media.path, type="video/mp4"))
+
+    def __generate_album_page_footer(self, album: Album, current_index: int):
+        pass

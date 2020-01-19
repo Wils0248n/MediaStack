@@ -1,61 +1,92 @@
+import os
+from typing import List
 from Media import Media
+from Album import Album
 from SearchManager import SearchManager
 from DBManager import DatabaseManager
-import os
+from Thumbnailer import Thumbnailer
 
 
 class MediaManager:
 
-    def __init__(self, media_directory, thumbnail_directory):
+    def __init__(self, media_directory: str, thumbnail_directory: str):
         self.media_directory = media_directory
         self.thumbnail_directory = thumbnail_directory
         self.media_list = []
-        self.db_manager = DatabaseManager()
-        self.initialize()
+        self.albums = {}
+        self.db_manager = DatabaseManager("test.db")
+        self.thumbnailer = Thumbnailer(thumbnail_directory)
+        self.__initialize()
 
-    def initialize(self):
+    def __initialize(self):
         try:
             self.db_manager.create_database()
             print("Created tables...\nInitializing Media...")
-            self.initialize_media_from_directory(self.media_directory)
+            self.__initialize_media_from_directory(self.media_directory)
             print("Done.\nAdding Media to DB...")
-            self.add_media_to_database()
+            self.__add_media_to_database()
             print("Done.")
         except RuntimeError:
             print("Database exists...\nInitializing from DB...")
-            self.initialize_media_from_database()
+            self.__initialize_media_from_database()
             print("Done.")
+        self.__initialize_albums()
 
-    def add_media(self, media):
+    def __add_media(self, media: Media):
         if media in self.media_list:
             return
         self.media_list.append(media)
 
-    def initialize_media_from_database(self):
+    def __initialize_media_from_database(self):
         for media in self.db_manager.get_all_media():
-            if media.create_thumbnail(self.thumbnail_directory):
-                self.add_media(media)
+            self.thumbnailer.create_thumbnail(media)
+            self.__add_media(media)
 
-    def initialize_media_from_directory(self, root_directory):
+    def __initialize_media_from_directory(self, root_directory: str):
         for currentDirectory, directories, files in os.walk(root_directory):
             for file in files:
                 try:
                     media = Media(os.path.join(currentDirectory, file))
-                    if media.create_thumbnail(self.thumbnail_directory):
-                        self.add_media(media)
-                except ValueError:
-                    pass  # TODO: Handle invalid file path.
+                    self.__add_media(media)
+                    self.thumbnailer.create_thumbnail(media)
+                except ValueError as e:
+                    print(str(e))
 
-    def add_media_to_database(self):
+    def __add_media_to_database(self):
         for media in self.media_list:
             self.db_manager.add_media(media)
         self.db_manager.write_database_changes()
 
-    def get_media(self, media_hash):
+    def __initialize_albums(self):
+        for media in self.media_list:
+            if media.album is not None:
+                self.__add_media_to_albums(media)
+
+    def __add_media_to_albums(self, media: Media):
+        if media.album not in self.albums.keys():
+            self.albums[media.album] = Album(media)
+        else:
+            self.albums[media.album].add_media(media)
+
+    def find_media(self, media_hash: str) -> Media:
         for media in self.media_list:
             if media.hash == media_hash:
                 return media
 
-    def search(self, search_query):
+    def get_media(self) -> List[Media]:
+        media_list = []
+        for media in self.media_list:
+            if media.album is None:
+                media_list.append(media)
+
+        for album_name in self.albums.keys():
+            media_list.append(self.albums[album_name].cover)
+
+        return media_list
+
+    def get_all_media(self) -> List[Media]:
+        return self.media_list
+
+    def search(self, search_query: List[str]) -> List[Media]:
         return SearchManager().search(self.media_list, search_query)
 

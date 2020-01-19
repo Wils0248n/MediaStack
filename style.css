@@ -27,7 +27,15 @@
   text-align: center;
 }
 
-.thumbnail {
+.media_thumbnail {
+  border:3px solid red;
+  padding: 3px;
+  width: 225px;
+  height: 150px;
+}
+
+.album_thumbnail {
+  border:3px solid purple;
   padding: 3px;
   width: 225px;
   height: 150px;
