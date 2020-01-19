@@ -74,13 +74,15 @@ class Media:
             self.source = source.decode("utf-8")
 
     def determine_file_type(self):  # TODO: use type hint.
-        file_type = filetype.guess(self.path).extension
-        if file_type == "jpg" or file_type == "png":
-            return Media.Type.IMAGE
-        if file_type == "gif":
-            return Media.Type.ANIMATED_IMAGE
-        if file_type == "mp4" or file_type == "webm":
-            return Media.Type.VIDEO
+        file_type = filetype.guess(self.path)
+        if file_type is not None:
+            file_type = file_type.extension
+            if file_type == "jpg" or file_type == "png":
+                return Media.Type.IMAGE
+            if file_type == "gif":
+                return Media.Type.ANIMATED_IMAGE
+            if file_type == "mp4" or file_type == "webm":
+                return Media.Type.VIDEO
         print(file_type)
         return None
 

@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from Media import Media
 import os
 import subprocess
@@ -10,22 +10,26 @@ class Thumbnailer:
         self.height = height
         self.width = width
 
-    def create_thumbnail(self, media):
+    def create_thumbnail(self, media: Media) -> bool:
         if os.path.isfile(self.thumbnail_directory + media.hash):
-            return
+            return True
 
         if media.type == Media.Type.IMAGE:
-            self.create_image_thumbnail(media)
-        elif media.type == Media.Type.ANIMATED_IMAGE:
-            self.create_image_thumbnail(media)
-        elif media.type == Media.Type.VIDEO:
-            self.create_video_thumbnail(media)
+            return self.create_image_thumbnail(media)
+        if media.type == Media.Type.ANIMATED_IMAGE:
+            return self.create_image_thumbnail(media)
+        if media.type == Media.Type.VIDEO:
+            return self.create_video_thumbnail(media)
 
     def create_image_thumbnail(self, media_image):
-        image = Image.open(media_image.path)
+        try:
+            image = Image.open(media_image.path)
+        except UnidentifiedImageError:
+            return False
         image.thumbnail((self.width, self.height))
         output_path = self.thumbnail_directory + media_image.hash
         image.save(output_path, format=image.format)
+        return True
 
     def create_video_thumbnail(self, media_video):
         output_path = self.thumbnail_directory + media_video.hash
@@ -33,3 +37,4 @@ class Thumbnailer:
         FNULL = open(os.devnull, 'w')
         subprocess.call(['ffmpeg', '-i', media_video.path, '-ss', '00:00:01.000',
             '-vframes', '1', '-s', size, '-f', 'image2', output_path], stdout=FNULL, stderr=subprocess.STDOUT)
+        return True

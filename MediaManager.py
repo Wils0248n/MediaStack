@@ -39,16 +39,16 @@ class MediaManager:
 
     def __initialize_media_from_database(self):
         for media in self.__db_manager.get_all_media():
-            self.__thumbnailer.create_thumbnail(media)
-            self.__add_media(media)
+            if self.__thumbnailer.create_thumbnail(media):
+                self.__add_media(media)
 
     def __initialize_media_from_directory(self, root_directory: str):
         for currentDirectory, directories, files in os.walk(root_directory):
             for file in files:
                 try:
                     media = Media(os.path.join(currentDirectory, file))
-                    self.__add_media(media)
-                    self.__thumbnailer.create_thumbnail(media)
+                    if self.__thumbnailer.create_thumbnail(media):
+                        self.__add_media(media)
                 except ValueError as e:
                     print(str(e))
 
@@ -93,5 +93,5 @@ class MediaManager:
         return self.__media_list
 
     def search(self, search_query: List[str]) -> List[Media]:
-        return SearchManager().search(self.__media_list, search_query)
+        return SearchManager().search(self.get_media(), search_query)
 

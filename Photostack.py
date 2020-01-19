@@ -27,9 +27,15 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
 
         elif str.startswith(self.path, "/album="):
             self.send_200_response('text/html')
-            album_name = unquote(self.path.split('=')[1].split('/')[0])
-            current_index = self.path.split('/')[2]
-            html_code = web_generator.generate_album_page(media_manager.albums[album_name], int(current_index))
+            album_query = self.path.split('=')[1].split('/')
+            album_name = unquote(album_query[0])
+            if len(album_query) == 2:
+                current_index = self.path.split('/')[2]
+                html_code = web_generator.generate_album_media_page(media_manager.albums[album_name],
+                                                                    int(current_index))
+            elif len(album_query) == 1:
+                html_code = web_generator.generate_album_page(media_manager.albums[album_name])
+
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
         elif str.startswith(self.path, "/" + media_directory) or str.startswith(self.path, "/" + thumbnail_directory):
@@ -44,7 +50,7 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
 
             media = media_manager.search(search_query)
 
-            html_code = web_generator.generate_search_result_page(media, media_manager.albums)
+            html_code = web_generator.generate_index(media)
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
         elif str.startswith(self.path, "/all"):
@@ -56,6 +62,9 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
             self.send_200_response('text/html')
             html_code = web_generator.generate_index(media_manager.get_media())
             self.wfile.write(bytes(html_code, 'UTF-8'))
+
+    def log_message(self, format, *args):
+        return
 
     def send_200_response(self, content_type):
         self.send_response(200)

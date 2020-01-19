@@ -97,8 +97,7 @@ class WebGenerator:
             with self.__body.tag('p') as label:
                 label += "Album:"
                 if media.album is not None:
-                    self.__body.tag_with_content(str(media.album), 'a', attributes=dict(href="/?search=album:"
-                                                                                         + str(media.album)))
+                    self.__body.tag_with_content(str(media.album), 'a', attributes=dict(href="/album=" + str(media.album)))
             with self.__body.tag('p') as label:
                 label += "Source:"
                 if media.source is not None:
@@ -119,16 +118,31 @@ class WebGenerator:
                     with self.__body.tag('video', id_="video", attributes=dict(controls=True)):
                         self.__body.self_close_tag('source', attributes=dict(src=media.path, type="video/mp4"))
 
-    def generate_album_page(self, album: Album, current_index: int) -> str:
+    def generate_album_page(self, album: Album) -> str:
+        self.__head = Html()
+        self.__body = Html()
+        self.__generate_html_header()
+        self.__generate_album_page_thumbnails(album)
+        return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
+
+    def __generate_album_page_thumbnails(self, album: Album):
+        with self.__body.tag('div', id_='"thumbnails"'):
+            for media in album.media_list:
+                media_album_index = album.media_list.index(media)
+                with self.__body.tag('a', attributes=dict(href="album=" + media.album + "/" + str(media_album_index))):
+                    self.__body.self_close_tag('img', classes=["album_thumbnail"],
+                                               attributes=dict(src=self.__thumbnail_directory + media.hash))
+
+    def generate_album_media_page(self, album: Album, current_index: int) -> str:
         self.__head = Html()
         self.__body = Html()
         self.__generate_html_header()
         self.__generate_media_info_sidebar(album.media_list[current_index])
-        self.__generate_album_page_media(album, current_index)
-        self.__generate_album_page_footer(album, current_index)
+        self.__generate_album_media_page_media(album, current_index)
+        self.__generate_album_media_page_footer(album, current_index)
         return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
 
-    def __generate_album_page_media(self, album: Album, current_index: int):
+    def __generate_album_media_page_media(self, album: Album, current_index: int):
         media = album.media_list[current_index]
         next_index = current_index + 1 if current_index + 1 < len(album.media_list) else 0
         with self.__body.tag('div', id_="media"):
@@ -139,5 +153,5 @@ class WebGenerator:
                     with self.__body.tag('video', attributes=dict(controls=True)):
                         self.__body.self_close_tag('source', attributes=dict(src="/" + media.path, type="video/mp4"))
 
-    def __generate_album_page_footer(self, album: Album, current_index: int):
+    def __generate_album_media_page_footer(self, album: Album, current_index: int):
         pass
