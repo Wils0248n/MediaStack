@@ -67,7 +67,7 @@ class WebGenerator:
         self.__body = Html()
         self.__generate_html_header()
         self.__generate_media_page_sidebar("tags", media.tags)
-        self.__generate_media_page_sidebar("metadata", "")  # TODO: Add metadata to image object
+        self.__generate_media_page_sidebar("metadata", "")  # TODO: Add metadata to media object
         self.__generate_media_page_media(media)
         return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
 
