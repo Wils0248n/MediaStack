@@ -31,10 +31,10 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
             album_name = unquote(album_query[0])
             if len(album_query) == 2:
                 current_index = self.path.split('/')[2]
-                html_code = web_generator.generate_album_media_page(media_manager.albums[album_name],
+                html_code = web_generator.generate_album_media_page(media_manager.get_albums()[album_name],
                                                                     int(current_index))
             elif len(album_query) == 1:
-                html_code = web_generator.generate_album_page(media_manager.albums[album_name])
+                html_code = web_generator.generate_album_page(media_manager.get_albums()[album_name])
 
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
@@ -55,7 +55,8 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
 
         elif str.startswith(self.path, "/all"):
             self.send_200_response('text/html')
-            html_code = web_generator.generate_search_result_page(media_manager.get_all_media(), media_manager.albums)
+            html_code = web_generator.generate_search_result_page(media_manager.get_all_media(),
+                                                                  media_manager.get_albums())
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
         else:

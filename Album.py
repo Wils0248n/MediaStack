@@ -2,12 +2,14 @@ from Media import Media
 
 
 class Album:
-    def __init__(self, cover_media: Media):
-        self.name = cover_media.album
-        self.cover = cover_media
+    def __init__(self, media: Media):
+        self.name = media.album
         self.media_list = []
-        self.add_media(self.cover)
+        self.add_media(media)
 
     def add_media(self, media: Media):
         self.media_list.append(media)
+
+    def get_cover(self) -> Media:
+        return None if len(self.media_list) == 0 else self.media_list[0]
 

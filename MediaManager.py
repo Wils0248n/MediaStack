@@ -13,7 +13,7 @@ class MediaManager:
         self.__media_directory = media_directory
         self.__thumbnail_directory = thumbnail_directory
         self.__media_list: List[Media] = []
-        self.albums: Dict[str, Album] = {}
+        self.__albums: Dict[str, Album] = {}
         self.__db_manager = DatabaseManager("test.db")
         self.__thumbnailer = Thumbnailer(thumbnail_directory)
         self.__initialize()
@@ -63,20 +63,20 @@ class MediaManager:
                 self.__add_media_to_albums(media)
 
     def __add_media_to_albums(self, media: Media):
-        if media.album not in self.albums.keys():
-            self.albums[media.album] = Album(media)
+        if media.album not in self.__albums.keys():
+            self.__albums[media.album] = Album(media)
         else:
-            self.albums[media.album].add_media(media)
+            self.__albums[media.album].add_media(media)
 
     def find_media(self, media_hash: str) -> Media:
         for media in self.__media_list:
             if media.hash == media_hash:
                 return media
 
-    def find_media_album(self, media: Media) -> Album:
-        if media.album is None:
-            return None
-        return self.albums[media.album.name]
+    def get_albums(self) -> Dict[str, Album]:
+        for album in self.__albums.values():
+            album.media_list.sort()
+        return self.__albums
 
     def get_media(self) -> List[Media]:
         media_list = []
@@ -84,14 +84,19 @@ class MediaManager:
             if media.album is None:
                 media_list.append(media)
 
-        for album_name in self.albums.keys():
-            media_list.append(self.albums[album_name].cover)
+        for album in self.__albums.values():
+            album.media_list.sort()
+            media_list.append(album.get_cover())
 
+        media_list.sort()
         return media_list
 
     def get_all_media(self) -> List[Media]:
+        self.__media_list.sort()
         return self.__media_list
 
     def search(self, search_query: List[str]) -> List[Media]:
-        return SearchManager().search(self.get_media(), search_query)
+        media_list = SearchManager().search(self.get_media(), search_query)
+        media_list.sort()
+        return media_list
 

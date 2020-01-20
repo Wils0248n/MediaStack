@@ -3,6 +3,7 @@ from Media import Media
 import os
 import subprocess
 
+
 class Thumbnailer:
 
     def __init__(self, thumbnail_directory, height=175, width=225):

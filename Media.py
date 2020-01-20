@@ -83,12 +83,23 @@ class Media:
                 return Media.Type.ANIMATED_IMAGE
             if file_type == "mp4" or file_type == "webm":
                 return Media.Type.VIDEO
-        print(file_type)
         return None
 
     def __str__(self):
         return self.hash + ", " + str(self.path) + ", " + str(self.category) + ", " \
                + str(self.artist) + ", " + str(self.album) + ", " + str(self.source) + ", " + str(self.tags)
+
+    def __lt__(self, other):
+        if self.category == other.category:
+            return self.path < other.path
+        else:
+            return self.category < other.category
+
+    def __gt__(self, other):
+        if self.category == other.category:
+            return self.path > other.path
+        else:
+            return self.category > other.category
 
     class Type(Enum):
         IMAGE = "image"
