@@ -42,7 +42,7 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
             self.send_200_response('image/png')
             self.wfile.write(read_file_bytes(unquote(self.path)))
 
-        elif str.startswith(self.path, "/?search=") and len(self.path) > len("/?search="):
+        elif str.startswith(self.path, "/?search="):
             self.send_200_response('text/html')
 
             search_query_list = unquote(self.path.split('=')[1]).split("+")
@@ -51,7 +51,7 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
 
             media = media_manager.search(search_query_list)
 
-            html_code = web_generator.generate_index(media, search_query)
+            html_code = web_generator.generate_search_page(media, search_query)
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
         elif self.path == "/all":
@@ -73,7 +73,7 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
 
         else:
             self.send_200_response('text/html')
-            html_code = web_generator.generate_index(media_manager.get_media())
+            html_code = web_generator.generate_index()
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
     def log_message(self, format, *args):

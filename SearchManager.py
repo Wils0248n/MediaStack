@@ -10,6 +10,9 @@ class SearchManager:
         special_queries = self.__get_special_queries(query_list)
         tag_queries = set(query_list).difference(special_queries)
 
+        if len(special_queries) == 0 and len(tag_queries) == 0 or query_list[0] == '':
+            return media_list
+
         new_media_set = self.__get_media_from_special_queries(media_list, special_queries)
         new_media_set = self.__get_media_from_tag_queries(new_media_set, tag_queries)
 

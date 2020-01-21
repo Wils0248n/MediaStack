@@ -15,7 +15,15 @@ class WebGenerator:
         self.__head.tag_with_content("Photo Stack Testing...", name='title')
         self.__head.self_close_tag('link', attributes=dict(href="/style.css", rel="stylesheet", type="text/css"))
 
-    def generate_index(self, media_list: List[Media], previous_search: str = "") -> str:
+    def generate_index(self, previous_search: str = "") -> str:
+        self.__head = Html()
+        self.__body = Html()
+        self.__generate_html_header()
+        self.__generate_body_header()
+        self.__generate_index_search_form(previous_search)
+        return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
+
+    def generate_search_page(self, media_list: List[Media], previous_search: str = "") -> str:
         self.__head = Html()
         self.__body = Html()
         self.__generate_html_header()
@@ -34,8 +42,16 @@ class WebGenerator:
         return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
 
     def __generate_body_header(self):
+        header_tag_type = 'h4'
         with self.__body.tag('div', id_='"header"'):
-            self.__body.tag_with_content("Header Here", 'p')
+            with self.__body.tag('a',  attributes=dict(href="/?search=")):
+                self.__body.tag_with_content("Media", header_tag_type)
+            self.__body.tag_with_content(" | ", header_tag_type)
+            with self.__body.tag('a',  attributes=dict(href="/")):
+                self.__body.tag_with_content("Index", header_tag_type)
+            self.__body.tag_with_content(" | ", header_tag_type)
+            with self.__body.tag('a',  attributes=dict(href="/all")):
+                self.__body.tag_with_content("All", header_tag_type)
 
     def __generate_index_search_form(self, previous_search):
         with self.__body.tag('div', id_='"search"'):
