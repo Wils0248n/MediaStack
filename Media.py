@@ -12,7 +12,7 @@ logging.getLogger('iptcinfo').setLevel(logging.ERROR)
 
 class Media:
 
-    def __init__(self, file_path: str, media_hash: str = None, media_type: str = None, category: str = None,
+    def __init__(self, file_path: str, media_hash: str = None, media_type: Enum = None, category: str = None,
                  artist: str = None, album: str = None, source: str = None, tags: List[str] = None):
         self.path = file_path
         self.hash = media_hash

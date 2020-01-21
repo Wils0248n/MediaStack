@@ -19,7 +19,7 @@ class WebGenerator:
         self.__head = Html()
         self.__body = Html()
         self.__generate_html_header()
-        self.__generate_index_body_header()
+        self.__generate_body_header()
         self.__generate_index_search_form(previous_search)
         self.__generate_index_thumbnails(media_list)
         return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
@@ -28,11 +28,11 @@ class WebGenerator:
         self.__head = Html()
         self.__body = Html()
         self.__generate_html_header()
-        self.__generate_index_body_header()
+        self.__generate_body_header()
         self.__generate_search_thumbnails(media_list, album_dict)
         return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
 
-    def __generate_index_body_header(self):
+    def __generate_body_header(self):
         with self.__body.tag('div', id_='"header"'):
             self.__body.tag_with_content("Header Here", 'p')
 
@@ -71,7 +71,7 @@ class WebGenerator:
     def generate_media_page(self, media: Media) -> str:
         self.__head = Html()
         self.__body = Html()
-        self.__generate_index_body_header()
+        self.__generate_body_header()
         self.__generate_html_header()
         self.__generate_media_page_media(media)
         self.__generate_media_info_sidebar(media)
@@ -82,8 +82,8 @@ class WebGenerator:
             with self.__body.tag('p') as label:
                 label += "Type:"
                 if media.type is not None:
-                    self.__body.tag_with_content(str(media.type), 'a', attributes=dict(href="/?search=type:"
-                                                                                        + str(media.type)))
+                    self.__body.tag_with_content(media.type.value, 'a', attributes=dict(href="/?search=type:"
+                                                                                        + media.type.value))
             with self.__body.tag('p') as label:
                 label += "Category:"
                 if media.category is not None:
@@ -112,16 +112,20 @@ class WebGenerator:
     def __generate_media_page_media(self, media: Media):
         with self.__body.tag('div', id_="media"):
             with self.__body.tag('a', attributes=dict(href=media.path)):
-                if media.type == "image" or media.type == "animated_image":
-                    self.__body.self_close_tag('img', id_="image", attributes=dict(src=media.path))
-                elif media.type == "video":
-                    with self.__body.tag('video', id_="video", attributes=dict(controls=True)):
-                        self.__body.self_close_tag('source', attributes=dict(src=media.path, type="video/mp4"))
+                self.__generate_media_tag(media)
+
+    def __generate_media_tag(self, media: Media):
+        if media.type == Media.Type.IMAGE or media.type == Media.Type.ANIMATED_IMAGE:
+            self.__body.self_close_tag('img', id_="image", attributes=dict(src="/" + media.path))
+        elif media.type == Media.Type.VIDEO:
+            with self.__body.tag('video', id_="video", attributes=dict(controls=True)):
+                self.__body.self_close_tag('source', attributes=dict(src="/" + media.path, type="video/mp4"))
 
     def generate_album_page(self, album: Album) -> str:
         self.__head = Html()
         self.__body = Html()
         self.__generate_html_header()
+        self.__generate_body_header()
         self.__generate_album_page_thumbnails(album)
         return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
 
@@ -137,7 +141,7 @@ class WebGenerator:
         self.__head = Html()
         self.__body = Html()
         self.__generate_html_header()
-        self.__generate_index_body_header()
+        self.__generate_body_header()
         self.__generate_album_media_page_media(album, current_index)
         self.__generate_media_info_sidebar(album.media_list[current_index])
         self.__generate_album_media_page_footer(album, current_index)
@@ -148,11 +152,7 @@ class WebGenerator:
         next_index = current_index + 1 if current_index + 1 < len(album.media_list) else 0
         with self.__body.tag('div', id_="media"):
             with self.__body.tag('a', attributes=dict(href="/album=" + media.album + "/" + str(next_index))):
-                if media.type == "image" or media.type == "animated_image":
-                    self.__body.self_close_tag('img', attributes=dict(src="/" + media.path))
-                elif media.type == "video":
-                    with self.__body.tag('video', attributes=dict(controls=True)):
-                        self.__body.self_close_tag('source', attributes=dict(src="/" + media.path, type="video/mp4"))
+                self.__generate_media_tag(media)
 
     def __generate_album_media_page_footer(self, album: Album, current_index: int):
         pass

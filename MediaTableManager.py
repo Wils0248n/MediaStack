@@ -45,5 +45,5 @@ class MediaTableManager:
 
 
 def create_media(media_data: Tuple[str, str, str, str, str, str, str]) -> Media:
-    return Media(media_data[1], media_hash=media_data[0], media_type=media_data[2],
+    return Media(media_data[1], media_hash=media_data[0], media_type=Media.Type(media_data[2]),
                  category=media_data[3], artist=media_data[4], album=media_data[5], source=media_data[6])

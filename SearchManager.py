@@ -34,7 +34,7 @@ class SearchManager:
 
             if query_type == "type":
                 new_media_set = {media for media in new_media_set if media.type is not None and
-                                 media.type.lower() == query_query}
+                                 media.type.value.lower() == query_query}
             elif query_type == "category":
                 new_media_set = {media for media in new_media_set if media.category is not None and
                                  media.category.lower() == query_query}

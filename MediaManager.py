@@ -16,15 +16,15 @@ class MediaManager:
         self.__albums: Dict[str, Album] = {}
         self.__db_manager = DatabaseManager("test.db")
         self.__thumbnailer = Thumbnailer(thumbnail_directory)
-        self.__initialize()
+        self.__initialize_media()
 
-    def __initialize(self):
+    def __initialize_media(self):
         try:
             self.__db_manager.create_database()
             print("Created tables...\nInitializing Media...")
             self.__initialize_media_from_directory(self.__media_directory)
             print("Done.\nAdding Media to DB...")
-            self.__add_media_to_database()
+            self.__add_media_list_to_database()
             print("Done.")
         except RuntimeError:
             print("Database exists...\nInitializing from DB...")
@@ -52,7 +52,7 @@ class MediaManager:
                 except ValueError as e:
                     print(str(e))
 
-    def __add_media_to_database(self):
+    def __add_media_list_to_database(self):
         for media in self.__media_list:
             self.__db_manager.add_media(media)
         self.__db_manager.write_database_changes()
