@@ -24,11 +24,12 @@ class WebGenerator:
         self.__generate_index_thumbnails(media_list)
         return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
 
-    def generate_all_page(self, media_list: List[Media], album_dict: Dict[str, Album]) -> str:
+    def generate_all_page(self, media_list: List[Media], album_dict: Dict[str, Album], previous_search: str = "") -> str:
         self.__head = Html()
         self.__body = Html()
         self.__generate_html_header()
         self.__generate_body_header()
+        self.__generate_index_search_form(previous_search)
         self.__generate_search_thumbnails(media_list, album_dict)
         return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
 

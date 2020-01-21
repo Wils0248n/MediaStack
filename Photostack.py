@@ -42,7 +42,7 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
             self.send_200_response('image/png')
             self.wfile.write(read_file_bytes(unquote(self.path)))
 
-        elif str.startswith(self.path, "/?search") and len(self.path) > 9:
+        elif str.startswith(self.path, "/?search=") and len(self.path) > len("/?search="):
             self.send_200_response('text/html')
 
             search_query_list = unquote(self.path.split('=')[1]).split("+")
@@ -54,9 +54,21 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
             html_code = web_generator.generate_index(media, search_query)
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
-        elif str.startswith(self.path, "/all"):
+        elif self.path == "/all":
             self.send_200_response('text/html')
             html_code = web_generator.generate_all_page(media_manager.get_all_media(), media_manager.get_albums())
+            self.wfile.write(bytes(html_code, 'UTF-8'))
+
+        elif str.startswith(self.path, "/all?search=") and len(self.path) > len("/all?search="):
+            self.send_200_response('text/html')
+
+            search_query_list = unquote(self.path.split('=')[1]).split("+")
+            search_query = " ".join(search_query_list)
+            search_query_list = [query.lower() for query in search_query_list]
+
+            media = media_manager.search_all(search_query_list)
+
+            html_code = web_generator.generate_all_page(media, media_manager.get_albums(), search_query)
             self.wfile.write(bytes(html_code, 'UTF-8'))
 
         else:

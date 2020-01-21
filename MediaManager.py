@@ -100,3 +100,7 @@ class MediaManager:
         media_list.sort()
         return media_list
 
+    def search_all(self, search_query: List[str]) -> List[Media]:
+        media_list = SearchManager().search(self.__media_list, search_query)
+        media_list.sort()
+        return media_list
