@@ -10,7 +10,7 @@ web_generator = WebGenerator(thumbnail_directory)
 media_manager = MediaManager(media_directory, thumbnail_directory)
 
 
-class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
+class MediaStackHTTPHandler(BaseHTTPRequestHandler):
     def __init__(self, request, client_address, server):
         BaseHTTPRequestHandler.__init__(self, request, client_address, server)
 
@@ -85,7 +85,7 @@ class PhotoStackHTTPHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
 
-def run_web_server(server_class=HTTPServer, handler_class=PhotoStackHTTPHandler):
+def run_web_server(server_class=HTTPServer, handler_class=MediaStackHTTPHandler):
     server_address = ('', 8000)
     httpd = server_class(server_address, handler_class)
     httpd.serve_forever()
