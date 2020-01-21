@@ -1,7 +1,7 @@
-from PIL import Image, UnidentifiedImageError
-from Media import Media
 import os
 import subprocess
+from PIL import Image, UnidentifiedImageError
+from Media import Media
 
 
 class Thumbnailer:
@@ -16,13 +16,13 @@ class Thumbnailer:
             return True
 
         if media.type == Media.Type.IMAGE:
-            return self.create_image_thumbnail(media)
+            return self.__create_image_thumbnail(media)
         if media.type == Media.Type.ANIMATED_IMAGE:
-            return self.create_image_thumbnail(media)
+            return self.__create_image_thumbnail(media)
         if media.type == Media.Type.VIDEO:
-            return self.create_video_thumbnail(media)
+            return self.__create_video_thumbnail(media)
 
-    def create_image_thumbnail(self, media_image):
+    def __create_image_thumbnail(self, media_image):
         try:
             image = Image.open(media_image.path)
         except UnidentifiedImageError:
@@ -32,7 +32,7 @@ class Thumbnailer:
         image.save(output_path, format=image.format)
         return True
 
-    def create_video_thumbnail(self, media_video):
+    def __create_video_thumbnail(self, media_video):
         output_path = self.thumbnail_directory + media_video.hash
         size = str(self.height) + "x" + str(self.width)
         FNULL = open(os.devnull, 'w')
