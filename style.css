@@ -1,22 +1,46 @@
+:root {
+  --main-bg-color: #1d1d1d;
+  --main-text-color: rgb(200, 200, 200);
+  --main-border-color: #454545;
+  --main-accent-color: rgb(0, 102, 255);
+  --media-thumbnail-border-color: rgb(0, 102, 255);
+  --album-thumbnail-border-color: rgb(173, 0, 255);
+}
+
+body {
+  background-color: var(--main-bg-color);
+}
+
 #header {
+  color: var(--main-accent-color);
   text-align: center;
+  font-size: 24px;
 }
 
 #search {
   text-align: center;
 }
 
-#search input {
-  border-width: 1px;
-  border-color: gray;
-  width: 30%;
+#search form input {
+  font-size: 14px;
+  color: var(--main-text-color);
+  background-color: var(--main-bg-color);
+  border-color: var(--main-accent-color);
+  height: 33px;
+  border-radius: 4px;
+  width: 65%;
+  padding-left: 10px;
 }
 
-#search button {
-  border-width: 1px;
-  border-color: gray;
-  height: 25px;
+#search form button {
+  font-size: 14px;
+  color: var(--main-text-color);
+  background-color: var(--main-bg-color);
+  border-color: var(--main-accent-color);
+  height: 40px;
+  min-width: 80px;
   width: 5%;
+  border-radius: 4px;
 }
 
 #thumbnails {
@@ -27,18 +51,20 @@
   text-align: center;
 }
 
-.media_thumbnail {
-  border:3px solid red;
+.thumbnail {
+  background-color: var(--main-bg-color);
   padding: 3px;
   width: 225px;
   height: 150px;
+  border-radius: 5px;
+}
+
+.media_thumbnail {
+  border:1px solid var(--media-thumbnail-border-color);
 }
 
 .album_thumbnail {
-  border:3px solid purple;
-  padding: 3px;
-  width: 225px;
-  height: 150px;
+  border:1px solid var(--album-thumbnail-border-color);
 }
 
 #media {
@@ -46,6 +72,8 @@
   margin-left: auto;
   margin-right: auto;
   text-align: center;
+  display: inline-block;
+  padding: 0px 7px;
 }
 
 #media a img {
@@ -53,10 +81,60 @@
 }
 
 #media_info {
+  border: 3px solid var(--main-accent-color);
   text-align: left;
   float: left;
-  margin-left: 1%;
   width: 18%;
 }
 
+#media_info_header {
+  color: var(--main-text-color);
+}
 
+#media_info p {
+  color: var(--main-text-color);;
+  padding-left: 5px;
+}
+
+#media_info p a {
+  text-decoration: none;
+  color: var(--main-accent-color);
+}
+
+#media_info ul li {
+  padding: 1px 0px;
+}
+
+#media_info ul li a {
+  text-decoration: none;
+  color: var(--main-accent-color);
+}
+
+
+@media only screen and (max-width: 1080px) {
+  #media {
+    width: 90%;
+    margin: auto;
+    text-align: center;
+    display: block;
+    padding: 0px 7px;
+  }
+
+  #media_info {
+    margin: auto;
+    float: none;
+    width: 90%;
+  }
+
+  #media_info p {
+    font-size: 28px;
+  }
+
+  #media_info ul li {
+    padding: 2px 0px;
+  }
+
+  #media_info ul li a {
+    font-size: 28px;
+  }
+}

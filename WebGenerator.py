@@ -48,11 +48,11 @@ class WebGenerator:
             for media in media_list:
                 if media.album is None:
                     with self.__body.tag('a', attributes=dict(href="media=" + media.hash)):
-                        self.__body.self_close_tag('img', classes=["media_thumbnail"],
+                        self.__body.self_close_tag('img', classes=["thumbnail", "media_thumbnail"],
                                                    attributes=dict(src=self.__thumbnail_directory + media.hash))
                 else:
                     with self.__body.tag('a', attributes=dict(href="album=" + media.album + "/0")):
-                        self.__body.self_close_tag('img', classes=["album_thumbnail"],
+                        self.__body.self_close_tag('img', classes=["thumbnail", "album_thumbnail"],
                                                    attributes=dict(src=self.__thumbnail_directory + media.hash))
 
     def __generate_search_thumbnails(self, media_list: List[Media], album_dict: Dict[str, Album]):
@@ -60,24 +60,24 @@ class WebGenerator:
             for media in media_list:
                 if media.album is None:
                     with self.__body.tag('a', attributes=dict(href="media=" + media.hash)):
-                        self.__body.self_close_tag('img', classes=["media_thumbnail"],
+                        self.__body.self_close_tag('img', classes=["thumbnail", "media_thumbnail"],
                                                    attributes=dict(src=self.__thumbnail_directory + media.hash))
                 else:
                     media_album_index = album_dict[media.album].media_list.index(media)
                     with self.__body.tag('a', attributes=dict(href="album=" + media.album + "/" + str(media_album_index))):
-                        self.__body.self_close_tag('img', classes=["album_thumbnail"],
+                        self.__body.self_close_tag('img', classes=["thumbnail", "album_thumbnail"],
                                                    attributes=dict(src=self.__thumbnail_directory + media.hash))
 
     def generate_media_page(self, media: Media) -> str:
         self.__head = Html()
         self.__body = Html()
+        self.__generate_index_body_header()
         self.__generate_html_header()
-        self.__generate_media_info_sidebar(media)
         self.__generate_media_page_media(media)
+        self.__generate_media_info_sidebar(media)
         return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
 
     def __generate_media_info_sidebar(self, media: Media):
-        self.__body.tag_with_content("Media Information:", 'p')
         with self.__body.tag('div', id_="media_info"):
             with self.__body.tag('p') as label:
                 label += "Type:"
@@ -130,15 +130,16 @@ class WebGenerator:
             for media in album.media_list:
                 media_album_index = album.media_list.index(media)
                 with self.__body.tag('a', attributes=dict(href="album=" + media.album + "/" + str(media_album_index))):
-                    self.__body.self_close_tag('img', classes=["album_thumbnail"],
+                    self.__body.self_close_tag('img', classes=["thumbnail", "album_thumbnail"],
                                                attributes=dict(src=self.__thumbnail_directory + media.hash))
 
     def generate_album_media_page(self, album: Album, current_index: int) -> str:
         self.__head = Html()
         self.__body = Html()
         self.__generate_html_header()
-        self.__generate_media_info_sidebar(album.media_list[current_index])
+        self.__generate_index_body_header()
         self.__generate_album_media_page_media(album, current_index)
+        self.__generate_media_info_sidebar(album.media_list[current_index])
         self.__generate_album_media_page_footer(album, current_index)
         return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
 
