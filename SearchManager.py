@@ -34,16 +34,16 @@ class SearchManager:
 
             if query_type == "type":
                 new_media_set = {media for media in new_media_set if media.type is not None and
-                                 media.type.lower() == query_query.replace(' ', '_')}
+                                 media.type.lower() == query_query}
             elif query_type == "category":
                 new_media_set = {media for media in new_media_set if media.category is not None and
-                                 media.category.replace('_', ' ').lower() == query_query}
+                                 media.category.lower() == query_query}
             elif query_type == "artist":
                 new_media_set = {media for media in new_media_set if media.artist is not None and
-                                 media.artist.replace('_', ' ').lower() == query_query}
+                                 media.artist.lower() == query_query}
             elif query_type == "album":
                 new_media_set = {media for media in new_media_set if media.album is not None and
-                                 media.album.replace('_', ' ').lower() == query_query}
+                                 media.album.lower() == query_query}
             elif query_type == "source":
                 pass
 

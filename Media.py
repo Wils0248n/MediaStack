@@ -65,7 +65,7 @@ class Media:
         info = IPTCInfo(self.path)
         keywords = []
         for keyword in info['keywords']:
-            keywords.append(keyword.decode("utf-8").lower())
+            keywords.append(keyword.decode("utf-8").replace(" ", "_").lower())
         self.tags = keywords
 
     def __update_source(self):

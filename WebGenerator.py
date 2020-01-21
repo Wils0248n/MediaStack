@@ -15,23 +15,32 @@ class WebGenerator:
         self.__head.tag_with_content("Photo Stack Testing...", name='title')
         self.__head.self_close_tag('link', attributes=dict(href="/style.css", rel="stylesheet", type="text/css"))
 
-    def generate_index(self, media_list: List[Media]) -> str:
+    def generate_index(self, media_list: List[Media], previous_search: str = "") -> str:
         self.__head = Html()
         self.__body = Html()
         self.__generate_html_header()
         self.__generate_index_body_header()
-        self.__generate_index_search_form()
+        self.__generate_index_search_form(previous_search)
         self.__generate_index_thumbnails(media_list)
+        return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
+
+    def generate_all_page(self, media_list: List[Media], album_dict: Dict[str, Album]) -> str:
+        self.__head = Html()
+        self.__body = Html()
+        self.__generate_html_header()
+        self.__generate_index_body_header()
+        self.__generate_search_thumbnails(media_list, album_dict)
         return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
 
     def __generate_index_body_header(self):
         with self.__body.tag('div', id_='"header"'):
             self.__body.tag_with_content("Header Here", 'p')
 
-    def __generate_index_search_form(self):
+    def __generate_index_search_form(self, previous_search):
         with self.__body.tag('div', id_='"search"'):
             with self.__body.tag('form', attributes=dict(action="")):
-                self.__body.self_close_tag('input', attributes=dict(type="text", placeholder="Search..", name="search"))
+                self.__body.self_close_tag('input', attributes=dict(type="text", value=previous_search,
+                                                                    placeholder="search...", name="search"))
                 self.__body.tag_with_content("Search", 'button', attributes=dict(type="submit", text="search"))
 
     def __generate_index_thumbnails(self, media_list: List[Media]):
@@ -45,15 +54,6 @@ class WebGenerator:
                     with self.__body.tag('a', attributes=dict(href="album=" + media.album + "/0")):
                         self.__body.self_close_tag('img', classes=["album_thumbnail"],
                                                    attributes=dict(src=self.__thumbnail_directory + media.hash))
-
-    def generate_search_result_page(self, media_list: List[Media], album_dict: Dict[str, Album]) -> str:
-        self.__head = Html()
-        self.__body = Html()
-        self.__generate_html_header()
-        self.__generate_index_body_header()
-        self.__generate_index_search_form()
-        self.__generate_search_thumbnails(media_list, album_dict)
-        return Html.html_template(self.__head, self.__body).to_raw_html(indent_size=2)
 
     def __generate_search_thumbnails(self, media_list: List[Media], album_dict: Dict[str, Album]):
         with self.__body.tag('div', id_='"thumbnails"'):
