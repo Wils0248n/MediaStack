@@ -10,6 +10,8 @@ from Thumbnailer import Thumbnailer
 class MediaManager:
 
     def __init__(self, media_directory: str, thumbnail_directory: str):
+        if not os.path.isdir(media_directory):
+            raise ValueError("Invalid Media Directory.")
         self.__media_directory = media_directory
         self.__thumbnail_directory = thumbnail_directory
         self.__media_list: List[Media] = []
