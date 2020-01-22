@@ -1,0 +1,4 @@
+filetype==1.0.5
+html-writer==1.1.1
+IPTCInfo3==2.1.4
+Pillow==7.0.0
