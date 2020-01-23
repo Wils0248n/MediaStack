@@ -55,11 +55,7 @@ class Media:
             self.__update_tags()
 
     def __update_hash(self):
-        hasher = hashlib.md5()
-        with open(self.path, 'rb') as file:
-            buffer = file.read()
-            hasher.update(buffer)
-        self.hash = hasher.hexdigest()
+        self.hash = hash_file(self.path)
 
     def __update_tags(self):
         info = IPTCInfo(self.path)
@@ -105,3 +101,11 @@ class Media:
         IMAGE = "image"
         ANIMATED_IMAGE = "animated_image"
         VIDEO = "video"
+
+
+def hash_file(file_path: str) -> str:
+    hasher = hashlib.md5()
+    with open(file_path, 'rb') as file:
+        buffer = file.read()
+        hasher.update(buffer)
+    return hasher.hexdigest()

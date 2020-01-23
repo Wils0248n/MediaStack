@@ -135,7 +135,7 @@ class WebGenerator:
         if media.type == Media.Type.IMAGE or media.type == Media.Type.ANIMATED_IMAGE:
             self.__body.self_close_tag('img', id_="image", attributes=dict(src="/" + media.path))
         elif media.type == Media.Type.VIDEO:
-            with self.__body.tag('video', id_="video", attributes=dict(controls=True)):
+            with self.__body.tag('video', id_="video", attributes=dict(controls=True, autoplay=True, muted=True)):
                 self.__body.self_close_tag('source', attributes=dict(src="/" + media.path, type="video/mp4"))
 
     def generate_album_page(self, album: Album) -> str:
