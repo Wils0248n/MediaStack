@@ -132,6 +132,21 @@ body {
   color: var(--main-accent-color);
 }
 
+#album_footer {
+  margin: auto;
+  color: var(--main-accent-color);
+  text-align: center;
+  font-size: 24px;
+  padding: 5px 0px;
+  margin-bottom: 5px;
+  width: 30%;
+}
+
+#album_footer a {
+  text-decoration: none;
+  color: var(--main-accent-color);
+}
+
 
 @media only screen and (max-width: 1080px) {
   #media {
@@ -158,5 +173,17 @@ body {
 
   #media_info ul li a {
     font-size: 28px;
+  }
+
+  #album_footer {
+    font-size: 70px;
+    width: 100%;
+  }
+
+  #album_footer a {
+    border: 3px solid var(--main-accent-color);
+    padding: 3px 4%;
+    margin-left: 10%;
+    margin-right: 10%;
   }
 }

@@ -172,4 +172,14 @@ class WebGenerator:
                 self.__generate_media_tag(media)
 
     def __generate_album_media_page_footer(self, album: Album, current_index: int):
-        pass
+        media = album.media_list[current_index]
+        next_index = current_index + 1 if current_index + 1 < len(album.media_list) else 0
+        prev_index = current_index - 1 if not current_index == 0 else len(album.media_list) - 1
+        with self.__body.tag('div', id_="album_footer"):
+            with self.__body.tag('p') as current_page_label:
+                self.__body.tag_with_content("<<", 'a',
+                                             attributes=dict(href="/album=" + media.album + "/" + str(prev_index)))
+                current_page_label += str(current_index + 1) + " / " + str(len(album.media_list))
+                self.__body.tag_with_content(">>", 'a',
+                                             attributes=dict(href="/album=" + media.album + "/" + str(next_index)))
+
