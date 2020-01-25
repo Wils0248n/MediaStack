@@ -22,16 +22,19 @@ class DatabaseManager:
         except OperationalError:
             raise RuntimeError("Database exists")
 
-    def write_database_changes(self):
-        self.__conn.commit()
-
     def initialize_database(self, media_list: List[Media]):
-        for media in media_list:
-            self.add_media(media)
+        self.add_media_from_list(media_list)
 
     def add_media(self, media: Media):
         self.__media_manager.add_media(media)
         self.__tag_manager.add_media(media)
+        self.__conn.commit()
+
+    def add_media_from_list(self, media_list: List[Media]):
+        for media in media_list:
+            self.__media_manager.add_media(media)
+            self.__tag_manager.add_media(media)
+        self.__conn.commit()
 
     def get_all_media(self) -> List[Media]:
         media_list = []
@@ -39,3 +42,21 @@ class DatabaseManager:
             media.tags = self.__tag_manager.get_media_tags(media)
             media_list.append(media)
         return media_list
+
+    def update_media(self, media: Media):
+        self.__media_manager.update_media(media)
+        self.__conn.commit()
+
+    def verify_database(self, new_media: List[Media]):
+        missing_media_hashes = self.__media_manager.get_missing_media()
+
+        for media in new_media:
+            if media.hash in missing_media_hashes:
+                print("Updated: " + media.hash)
+                self.update_media(media)
+                missing_media_hashes.remove(media.hash)
+            else:
+                print("Added new media: " + media.hash)
+                self.add_media(media)
+
+        print("Database missing " + str(len(missing_media_hashes)) + " files.")

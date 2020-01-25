@@ -8,6 +8,7 @@ class MediaTableManager:
     def __init__(self, connection: sqlite3.Connection, cursor: sqlite3.Cursor):
         self.__conn = connection
         self.__cursor = cursor
+        self.__missing_media: List[str] = []
 
     def create_table(self):
         self.__cursor.execute("""CREATE TABLE imagedata (
@@ -34,14 +35,21 @@ class MediaTableManager:
     def find_media(self, media_hash: str) -> Media:
         return create_media(self.__cursor.execute("SELECT * FROM imagedata WHERE hash=?", (media_hash,)).fetchone())
 
+    def update_media(self, media: Media):
+        self.__cursor.execute("UPDATE imagedata SET filename=?, category=?, artist=?, album=? "
+                              "WHERE hash = ?", (media.path, media.category, media.artist, media.album, media.hash))
+
     def get_all_media(self) -> List[Media]:
         media_list = []
         for media_data in self.__cursor.execute("SELECT * FROM imagedata").fetchall():
             try:
                 media_list.append(create_media(media_data))
             except FileNotFoundError:
-                pass  # TODO: Handle missing file.
+                self.__missing_media.append(media_data[0])
         return media_list
+
+    def get_missing_media(self) -> List[str]:
+        return self.__missing_media
 
 
 def create_media(media_data: Tuple[str, str, str, str, str, str, str]) -> Media:

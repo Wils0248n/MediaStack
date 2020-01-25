@@ -25,42 +25,32 @@ class MediaManager:
             self.__db_manager.create_database()
             print("Initializing Media...")
             self.__initialize_media_from_disk()
-            print("Done.\nAdding Media to DB...")
-            self.__add_media_list_to_database()
+            print("Done. Added " + str(len(self.__media_list)) + " Media.\nAdding Media to DB...")
+            self.__db_manager.add_media_from_list(self.__media_list)
             print("Done.")
         except RuntimeError:
             print("Database exists...\nInitializing from DB...")
             self.__initialize_media_from_database()
-            print("Done.")
+            print("Done.\nVerifying Media Files...")
+            self.__verify_database()
+            print("Done, Initialized " + str(len(self.__media_list)) + " Media.")
         print("Initializing Albums...")
         self.__initialize_albums()
         print("Done.\nCreating Thumbnails...")
         self.__create_thumbnails()
         print("Done.")
 
-    def __add_media(self, media: Media):
-        if media in self.__media_list:
-            return
-        self.__media_list.append(media)
-
     def __initialize_media_from_database(self):
         for media in self.__db_manager.get_all_media():
-            self.__add_media(media)
+            self.__media_list.append(media)
 
     def __initialize_media_from_disk(self):
-        for media in self.__get_media_in_media_directory():
-            self.__add_media(media)
-
-    def __get_media_in_media_directory(self) -> List[Media]:
-        media_list = []
         for media_file_path in self.__scan_media_directory():
             try:
                 media = Media(media_file_path)
+                self.__media_list.append(media)
             except ValueError as e:
                 print(str(e))
-                continue
-            media_list.append(media)
-        return media_list
 
     def __scan_media_directory(self) -> List[str]:
         media_file_paths = []
@@ -68,11 +58,6 @@ class MediaManager:
             for file in files:
                 media_file_paths.append(os.path.join(currentDirectory, file))
         return media_file_paths
-
-    def __add_media_list_to_database(self):
-        for media in self.__media_list:
-            self.__db_manager.add_media(media)
-        self.__db_manager.write_database_changes()
 
     def __initialize_albums(self):
         for media in self.__media_list:
@@ -125,3 +110,21 @@ class MediaManager:
         media_list = SearchManager().search(self.__media_list, search_query)
         media_list.sort()
         return media_list
+
+    def __verify_database(self):
+        new_media = self.__get_new_media()
+        self.__db_manager.verify_database(new_media)
+        for media in new_media:
+            self.__media_list.append(media)
+
+    def __get_new_media(self) -> List[Media]:
+        new_media = []
+        current_media_paths = [media.path for media in self.__media_list]
+        for media_path in self.__scan_media_directory():
+            if media_path not in current_media_paths:
+                new_media.append(Media(media_path))
+        return new_media
+
+
+if __name__ == '__main__':
+    MediaManager("media/", "thumbs/")
