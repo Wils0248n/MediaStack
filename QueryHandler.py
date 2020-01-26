@@ -40,7 +40,8 @@ class QueryHandler:
         if media is None:
             return None
         else:
-            return bytes(self.__web_generator.generate_media_page(media), self.__encoding)
+            return bytes(self.__web_generator.generate_media_page(
+                media, self.__media_manager.get_media_tags_statistics(media)), self.__encoding)
 
     def __handle_album_request(self, request: str) -> bytes:
         album_query = request.split('=')[1].split('/')
@@ -50,7 +51,10 @@ class QueryHandler:
         if len(album_query) == 2:
             current_index = int(request.split('/')[2])
             html_code = self.__web_generator.generate_album_media_page(
-                self.__media_manager.get_albums()[album_name], current_index)
+                self.__media_manager.get_albums()[album_name],
+                current_index,
+                self.__media_manager.get_media_tags_statistics(
+                    self.__media_manager.get_albums()[album_name].media_list[current_index]))
         elif len(album_query) == 1:
             html_code = self.__web_generator.generate_album_page(self.__media_manager.get_albums()[album_name])
         return bytes(html_code, 'UTF-8')

@@ -54,6 +54,9 @@ class TagTableManager:
 
         return tags
 
+    def get_number_of_media_with_tag(self, tag: str) -> int:
+        return len(self.get_all_media_with_tag(tag))
+
     def get_all_media_with_tag(self, tag: str):
         tag = tag.replace("'", "").replace('"', '')
         return self.__cursor.execute("SELECT \"" + tag + "\" FROM tags WHERE \"" + tag + "\" IS NOT NULL").fetchall()

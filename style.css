@@ -109,6 +109,10 @@ body {
   width: 18%;
 }
 
+#media_info ul li p {
+  display: inline;
+}
+
 #media_info_header {
   color: var(--main-text-color);
 }

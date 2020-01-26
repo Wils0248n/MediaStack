@@ -1,6 +1,6 @@
 import sqlite3
 from sqlite3 import OperationalError
-from typing import List
+from typing import List, Dict
 from Media import Media
 from TagTableManager import TagTableManager
 from MediaTableManager import MediaTableManager
@@ -42,6 +42,12 @@ class DatabaseManager:
             media.tags = self.__tag_manager.get_media_tags(media)
             media_list.append(media)
         return media_list
+
+    def get_tags_statistics(self, tags: List[str]) -> Dict[str, int]:
+        tag_statistics = {}
+        for tag in tags:
+            tag_statistics[tag] = self.__tag_manager.get_number_of_media_with_tag(tag)
+        return tag_statistics
 
     def update_media(self, media: Media):
         self.__media_manager.update_media(media)

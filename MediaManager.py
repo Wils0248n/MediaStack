@@ -114,6 +114,9 @@ class MediaManager:
         media_list.sort()
         return media_list
 
+    def get_media_tags_statistics(self, media: Media) -> Dict[str, int]:
+        return self.__db_manager.get_tags_statistics(media.tags)
+
     def __verify_database(self):
         new_media = self.__get_new_media()
         self.__db_manager.verify_database(new_media)
