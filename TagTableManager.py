@@ -23,6 +23,11 @@ class TagTableManager:
             self.__create_tag(tag.lower())
             self.__add_media_to_tag(media, tag)
 
+    def update_media_tags(self, media: Media):
+        for tag in media.tags:
+            self.__create_tag(tag.lower())
+            self.__add_media_to_tag(media, tag)
+
     def __create_tag(self, tag_name: str):
         try:
             self.__cursor.execute("ALTER TABLE tags ADD COLUMN \"" + tag_name + "\"")

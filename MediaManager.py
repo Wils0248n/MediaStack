@@ -97,6 +97,9 @@ class MediaManager:
         media_list.sort()
         return media_list
 
+    def update_media_tags(self, media: Media):
+        self.__db_manager.update_media_tags(media)
+
     def get_all_media(self) -> List[Media]:
         self.__media_list.sort()
         return self.__media_list

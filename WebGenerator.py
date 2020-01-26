@@ -126,6 +126,12 @@ class WebGenerator:
                     with self.__body.tag('li'):
                         self.__body.tag_with_content(tag, 'a', attributes=dict(href="/?search=" + tag))
 
+            with self.__body.tag('div', id_='"add_tag"'):
+                with self.__body.tag('form', attributes=dict(action="", method="post")):
+                    self.__body.self_close_tag('input', attributes=dict(type="text",
+                                                                        placeholder="Tag Name", name="add_tag"))
+                    self.__body.tag_with_content("Add Tag", 'button', attributes=dict(type="submit", text="Add Tag"))
+
     def __generate_media_page_media(self, media: Media):
         with self.__body.tag('div', id_="media"):
             with self.__body.tag('a', attributes=dict(href=media.path)):

@@ -47,6 +47,10 @@ class DatabaseManager:
         self.__media_manager.update_media(media)
         self.__conn.commit()
 
+    def update_media_tags(self, media: Media):
+        self.__tag_manager.update_media_tags(media)
+        self.__conn.commit()
+
     def verify_database(self, new_media: List[Media]):
         missing_media_hashes = self.__media_manager.get_missing_media()
 
