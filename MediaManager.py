@@ -128,7 +128,10 @@ class MediaManager:
         current_media_paths = [media.path for media in self.__media_list]
         for media_path in self.__scan_media_directory():
             if media_path not in current_media_paths:
-                new_media.append(Media(media_path))
+                try:
+                    new_media.append(Media(media_path))
+                except ValueError as e:
+                    print(str(e))
         return new_media
 
 
