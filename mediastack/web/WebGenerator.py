@@ -1,7 +1,7 @@
 from html_writer import Html
 from typing import List, Dict
-from Media import Media
-from Album import Album
+from model.Media import Media
+from model.Album import Album
 
 
 class WebGenerator:

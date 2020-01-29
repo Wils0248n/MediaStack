@@ -1,10 +1,10 @@
 import os
 from typing import List, Dict
-from Media import Media, hash_file
-from Album import Album
-from SearchManager import SearchManager
-from DBManager import DatabaseManager
-from Thumbnailer import Thumbnailer
+from model.Media import Media, hash_file
+from model.Album import Album
+from model.SearchManager import SearchManager
+from database.DatabaseManager import DatabaseManager
+from model.Thumbnailer import Thumbnailer
 
 
 class MediaManager:
@@ -16,7 +16,7 @@ class MediaManager:
         self.__thumbnail_directory = thumbnail_directory
         self.__media_list: List[Media] = []
         self.__albums: Dict[str, Album] = {}
-        self.__db_manager = DatabaseManager("test.db")
+        self.__db_manager = DatabaseManager("MediaStack.db")
         self.__thumbnailer = Thumbnailer(thumbnail_directory)
         self.__initialize_media()
 

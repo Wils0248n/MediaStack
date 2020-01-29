@@ -1,11 +1,11 @@
-from MediaStackHTTPHandler import MediaStackHTTPHandler
+from web import MediaStackHTTPHandler
 from http.server import HTTPServer
 
 
 def main():
     print("Starting Web server...")
     try:
-        HTTPServer(('', 8000), MediaStackHTTPHandler).serve_forever()
+        HTTPServer(('', 8001), MediaStackHTTPHandler).serve_forever()
     except KeyboardInterrupt:
         print("Exitting...")
 

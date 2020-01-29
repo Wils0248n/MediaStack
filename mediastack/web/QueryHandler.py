@@ -1,8 +1,8 @@
 import os
 from typing import Tuple
 from urllib.parse import unquote
-from WebGenerator import WebGenerator
-from MediaManager import MediaManager
+from web.WebGenerator import WebGenerator
+from model.MediaManager import MediaManager
 
 
 class QueryHandler:
@@ -16,7 +16,7 @@ class QueryHandler:
 
     def handle_get_request(self, request: str) -> Tuple[str, bytes]:
         if request == "/style.css":
-            return 'text/css', read_file_bytes("/style.css")
+            return 'text/css', read_file_bytes("/" + "style.css")
         if request.startswith("/media="):
             return 'text/html', self.__handle_media_request(request)
         if request.startswith("/album="):
@@ -106,8 +106,10 @@ def read_file_bytes(file_path: str) -> bytes:
         with open(os.getcwd() + file_path, 'rb') as file:
             return file.read()
     except FileNotFoundError:
+        print(file_path + " not a file.")
         return None
     except IsADirectoryError:
+        print(file_path + " is a dir.")
         return None
 
 

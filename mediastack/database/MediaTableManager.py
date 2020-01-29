@@ -1,6 +1,6 @@
 import sqlite3
 from typing import List, Tuple
-from Media import Media
+from model.Media import Media
 
 
 class MediaTableManager:

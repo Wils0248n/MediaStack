@@ -1,4 +1,4 @@
-from Media import Media
+from model import Media
 
 
 class Album:

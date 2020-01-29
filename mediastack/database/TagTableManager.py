@@ -1,6 +1,6 @@
 import sqlite3
 from typing import List
-from Media import Media
+from model import Media
 
 
 class TagTableManager:

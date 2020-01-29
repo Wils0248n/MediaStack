@@ -1,5 +1,5 @@
 from http.server import BaseHTTPRequestHandler
-from QueryHandler import QueryHandler
+from web.QueryHandler import QueryHandler
 
 query_handler = QueryHandler()
 

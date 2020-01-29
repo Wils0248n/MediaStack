@@ -1,4 +1,4 @@
-from Media import Media
+from model.Media import Media
 from typing import List, Set
 
 
