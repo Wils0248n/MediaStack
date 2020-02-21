@@ -2,6 +2,7 @@ import os
 import subprocess
 from PIL import Image, UnidentifiedImageError
 from model.Media import Media
+from model.MediaType import MediaType
 
 
 class Thumbnailer:
@@ -16,11 +17,11 @@ class Thumbnailer:
         if os.path.isfile(self.__thumbnail_directory + media.hash):
             return True
 
-        if media.type == Media.Type.IMAGE:
+        if media.type == MediaType.IMAGE:
             return self.__create_image_thumbnail(media)
-        if media.type == Media.Type.ANIMATED_IMAGE:
+        if media.type == MediaType.ANIMATED_IMAGE:
             return self.__create_image_thumbnail(media)
-        if media.type == Media.Type.VIDEO:
+        if media.type == MediaType.VIDEO:
             return self.__create_video_thumbnail(media)
 
     def __create_thumbnail_directory(self):

@@ -1,6 +1,8 @@
 from web import MediaStackHTTPHandler
 from http.server import HTTPServer
+import logging
 
+logging.getLogger('iptcinfo').setLevel(logging.ERROR)
 
 def main():
     print("Starting Web server...")

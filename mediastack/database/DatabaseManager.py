@@ -1,7 +1,7 @@
 import sqlite3
 from sqlite3 import OperationalError
 from typing import List, Dict
-from model import Media
+from model.Media import Media
 from database.TagTableManager import TagTableManager
 from database.MediaTableManager import MediaTableManager
 

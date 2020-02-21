@@ -1,10 +1,16 @@
+from typing import List, Set, Dict
 from model.Media import Media
-from typing import List, Set
+from model.Category import Category
+from model.Artist import Artist
+from model.Album import Album
 
 
 class SearchManager:
-    def __init__(self):
-        pass
+    def __init__(self, media_list: List[Media], categories: Dict[str, Category], artists: Dict[str, Artist], albums: Dict[str, Album]):
+        self.__media_list = media_list
+        self.__categories = categories
+        self.__artists = artists
+        self.__albums = albums
 
     def search(self, media_list: List[Media], query_list: List[str]) -> List[Media]:
         special_queries = self.__get_special_queries(query_list)
@@ -40,13 +46,13 @@ class SearchManager:
                                  media.type.value.lower() == query_query}
             elif query_type == "category":
                 new_media_set = {media for media in new_media_set if media.category is not None and
-                                 media.category.lower() == query_query}
+                                 str(media.category).lower() == query_query}
             elif query_type == "artist":
                 new_media_set = {media for media in new_media_set if media.artist is not None and
-                                 media.artist.lower() == query_query}
+                                 str(media.artist).lower() == query_query}
             elif query_type == "album":
                 new_media_set = {media for media in new_media_set if media.album is not None and
-                                 media.album.lower() == query_query}
+                                 str(media.album).lower() == query_query}
             elif query_type == "source":
                 pass
 
@@ -58,11 +64,11 @@ class SearchManager:
 
         whitelist_tags = []
         blacklist_tags = []
-        for tag in tag_queries:
-            if tag[0] == "-":
-                blacklist_tags.append(tag[1:])
+        for tag_query in tag_queries:
+            if tag_query[0] == "-":
+                blacklist_tags.append(tag_query[1:])
             else:
-                whitelist_tags.append(tag)
+                whitelist_tags.append(tag_query)
         new_media_set = self.__get_media_that_contains_tags(media_set, whitelist_tags)
         new_media_set = self.__remove_media_that_does_not_contain_all_tags(new_media_set, whitelist_tags)
         new_media_set = self.__remove_media_that_contains_tags(media_set, new_media_set, blacklist_tags)
