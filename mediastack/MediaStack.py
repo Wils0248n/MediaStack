@@ -1,4 +1,4 @@
-from web import MediaStackHTTPHandler
+from web.MediaStackHTTPHandler import MediaStackHTTPHandler
 from http.server import HTTPServer
 import logging
 

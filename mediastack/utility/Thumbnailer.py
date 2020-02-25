@@ -2,14 +2,13 @@ import os
 import subprocess
 from PIL import Image, UnidentifiedImageError
 from model.Media import Media
-from model.MediaType import MediaType
 
 
 class Thumbnailer:
 
     def __init__(self, thumbnail_directory, height: int = 175, width: int = 225):
         self.__thumbnail_directory = thumbnail_directory
-        self.__create_thumbnail_directory()
+        self._create_thumbnail_directory()
         self.__height = height
         self.__width = width
 
@@ -17,20 +16,20 @@ class Thumbnailer:
         if os.path.isfile(self.__thumbnail_directory + media.hash):
             return True
 
-        if media.type == MediaType.IMAGE:
-            return self.__create_image_thumbnail(media)
-        if media.type == MediaType.ANIMATED_IMAGE:
-            return self.__create_image_thumbnail(media)
-        if media.type == MediaType.VIDEO:
-            return self.__create_video_thumbnail(media)
+        if media.type == "image":
+            return self._create_image_thumbnail(media)
+        if media.type == "animated_image":
+            return self._create_image_thumbnail(media)
+        if media.type == "video":
+            return self._create_video_thumbnail(media)
 
-    def __create_thumbnail_directory(self):
+    def _create_thumbnail_directory(self):
         try:
             os.mkdir(self.__thumbnail_directory)
         except FileExistsError:
             pass
 
-    def __create_image_thumbnail(self, media_image: Media) -> bool:
+    def _create_image_thumbnail(self, media_image: Media) -> bool:
         try:
             image = Image.open(media_image.path)
         except UnidentifiedImageError:
@@ -40,7 +39,7 @@ class Thumbnailer:
         image.save(output_path, format=image.format)
         return True
 
-    def __create_video_thumbnail(self, media_video: Media) -> bool:
+    def _create_video_thumbnail(self, media_video: Media) -> bool:
         #  TODO: Test.
         output_path = self.__thumbnail_directory + media_video.hash
         size = str(self.__height) + "x" + str(self.__width)

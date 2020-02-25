@@ -1,3 +1,3 @@
 from web.MediaStackHTTPHandler import MediaStackHTTPHandler
-from web.QueryHandler import QueryHandler
+from web.RequestHandler import RequestHandler
 from web.WebGenerator import WebGenerator

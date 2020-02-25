@@ -1,7 +1,9 @@
+from typing import Dict
 from http.server import BaseHTTPRequestHandler
-from web.QueryHandler import QueryHandler
+from urllib import parse
+from web.RequestHandler import RequestHandler
 
-query_handler = QueryHandler()
+request_handler = RequestHandler()
 
 
 class MediaStackHTTPHandler(BaseHTTPRequestHandler):
@@ -9,37 +11,55 @@ class MediaStackHTTPHandler(BaseHTTPRequestHandler):
         BaseHTTPRequestHandler.__init__(self, request, client_address, server)
 
     def do_GET(self):
-        response = query_handler.handle_get_request(self.path)
+        parsed_url = parse.urlsplit(self.path)
+        request = {}
+        request["page"] = parsed_url.path
+        request["queries"] = parse.parse_qs(parsed_url.query)
+
+        response = request_handler.handle_get_request(request)
         if response[1] is None:
-            self.__send_404_response()
+            self._send_404_response()
             self.wfile.write(bytes("404", "UTF-8"))
         else:
-            self.__send_200_response(response[0])
+            self._send_200_response(response[0])
             self.wfile.write(response[1])
 
     def do_POST(self):
-        content_length = int(self.headers['Content-Length'])
-        post_data = str(self.rfile.read(content_length), "UTF-8").split("=")
+        parsed_url = parse.urlsplit(self.path)
+        request = {}
+        request["action"] = parsed_url.path[1:]
 
-        response = query_handler.handle_post_request(self.path, post_data)
+        content_length = int(self.headers['Content-Length'])
+        post_data = str(self.rfile.read(content_length), "UTF-8")
+        request["post"] = self._parse_post_data(post_data)
+
+        response = request_handler.handle_post_request(request)
         if response[1] is None:
-            self.__send_500_response()
+            self._send_500_response()
             self.wfile.write(bytes("500", "UTF-8"))
         else:
-            self.__send_200_response(response[0])
-            self.wfile.write(response[1])
+            self._send_200_response(response[0])
+            self.wfile.write(response[1]) 
 
-    def __send_200_response(self, content_type):
+    def _parse_post_data(self, post_data: str) -> Dict:
+        post_data = parse.unquote(post_data)
+        post_request = {}
+        for input in post_data.split("&"):
+            input_data = input.split("=")
+            post_request[input_data[0]] = input_data[1]
+        return post_request
+
+    def _send_200_response(self, content_type):
         self.send_response(200)
         self.send_header('Content-type', content_type)
         self.end_headers()
 
-    def __send_404_response(self):
+    def _send_404_response(self):
         self.send_response(404)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
 
-    def __send_500_response(self):
+    def _send_500_response(self):
         self.send_response(500)
         self.send_header('Content-type', 'text/html')
         self.end_headers()

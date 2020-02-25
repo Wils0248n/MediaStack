@@ -1,19 +1,19 @@
+import sqlalchemy as sa
+from model.Base import Base
 from model.Media import Media
+from model.Relations import media_tag_table
 
-class Tag:
-    def __init__(self, name):
-        self.name = name
-        self.media_list = []
+class Tag(Base):
+    __tablename__ = 'tags'
 
-    def add_media(self, media: Media):
-        if media not in self.media_list:
-            self.media_list.append(media)
+    name = sa.Column('name', sa.String, primary_key=True)
 
-    def number_of_media(self):
-        return len(self.media_list)
+    media = sa.orm.relationship("Media", 
+    secondary=media_tag_table, 
+    back_populates="tags")
 
     def __eq__(self, other):
-        return self.name == str(other)
+        return self.name == other
 
     def __repr__(self):
         return self.name

@@ -1,25 +1,23 @@
-import os
-from typing import List
+import sqlalchemy as sa
+from model.Base import Base
+from model.Relations import media_tag_table
 from enum import Enum
-from utility.MediaUtility import hash_file, extract_source, determine_media_type
 
+class Media(Base):
+    __tablename__ = 'media'
 
-class Media:
+    hash = sa.Column('hash', sa.String, primary_key=True)
+    path = sa.Column('path', sa.String, nullable=False)
+    category = sa.Column('category', sa.String)
+    artist = sa.Column('artist', sa.String)
+    album = sa.Column('album', sa.String)
+    type = sa.Column('type', sa.String)
+    score = sa.Column('score', sa.Integer)
+    source = sa.Column('source', sa.String)
 
-    def __init__(self, file_path: str, media_hash: str = None, media_type: Enum = None, category = None,
-                 artist = None, album = None, source: str = None, tags = []):
-        self.path = file_path
-        self.hash = media_hash or hash_file(self.path)
-        self.type = media_type or determine_media_type(self.path)
-        self.category = category
-        self.artist = artist
-        self.album = album
-        self.tags = tags
-        self.source = source or extract_source(self.path)
-
-    def __str__(self):
-        return self.hash + ", " + str(self.path) + ", " + str(self.category) + ", " \
-               + str(self.artist) + ", " + str(self.album) + ", " + str(self.source) + ", " + str(self.tags)
+    tags = sa.orm.relationship("Tag", 
+    secondary=media_tag_table, 
+    back_populates="media")
 
     def __lt__(self, other):
         if self.category == other.category:
@@ -32,5 +30,3 @@ class Media:
             return self.path > other.path
         else:
             return self.category.name > other.category.name
-
-

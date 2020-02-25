@@ -1,16 +1,7 @@
 from typing import List, Set, Dict
 from model.Media import Media
-from model.Category import Category
-from model.Artist import Artist
-from model.Album import Album
-
 
 class SearchManager:
-    def __init__(self, media_list: List[Media], categories: Dict[str, Category], artists: Dict[str, Artist], albums: Dict[str, Album]):
-        self.__media_list = media_list
-        self.__categories = categories
-        self.__artists = artists
-        self.__albums = albums
 
     def search(self, media_list: List[Media], query_list: List[str]) -> List[Media]:
         special_queries = self.__get_special_queries(query_list)
@@ -43,7 +34,7 @@ class SearchManager:
 
             if query_type == "type":
                 new_media_set = {media for media in new_media_set if media.type is not None and
-                                 media.type.value.lower() == query_query}
+                                 media.type.lower() == query_query}
             elif query_type == "category":
                 new_media_set = {media for media in new_media_set if media.category is not None and
                                  str(media.category).lower() == query_query}

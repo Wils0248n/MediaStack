@@ -17,13 +17,14 @@ def hash_file(file_path: str) -> str:
 
 def extract_media_meta(media_path: str) -> Dict[str, str]:
     media_meta = {}
+    
     try:
-        media_meta["category"] = media_path.split(os.path.sep)[1]
+        media_meta["category"] = media_path.split(os.path.sep)[1].lower()
     except:
         media_meta["category"] = None
 
     try:
-        media_meta["artist"] = media_path.split(os.path.sep)[2]
+        media_meta["artist"] = media_path.split(os.path.sep)[2].lower()
     except:
         media_meta["artist"] = None
 
@@ -33,10 +34,10 @@ def extract_media_meta(media_path: str) -> Dict[str, str]:
         if album_path + os.path.sep + album_name == media_path:
             media_meta["album"] = None
         else:
-            media_meta["album"] = album_name
+            media_meta["album"] = album_name.lower()
     except:
         media_meta["album"] = None
-    
+
     return media_meta
 
 def extract_keywords(media_path: str) -> List[str]:
@@ -53,16 +54,16 @@ def extract_source(media_path: str) -> str:
     else:
         return None
 
-def determine_media_type(media_path: str) -> MediaType:
+def determine_media_type(media_path: str) -> str:
     file_type = filetype.guess(media_path)
     if file_type is not None:
         file_type = file_type.extension
         if file_type == "jpg" or file_type == "png":
-            return MediaType.IMAGE
+            return "image"
         if file_type == "gif":
-            return MediaType.ANIMATED_IMAGE
+            return "animated_image"
         if file_type == "mp4" or file_type == "webm":
-            return MediaType.VIDEO
+            return "video"
     return None
 
 def scan_directory(directory_path: str) -> List[str]:
@@ -71,3 +72,14 @@ def scan_directory(directory_path: str) -> List[str]:
         for file in files:
             media_file_paths.append(os.path.join(currentDirectory, file))
     return media_file_paths
+
+def read_file_bytes(file_path: str) -> bytes:
+    try:
+        with open(os.getcwd() + file_path, 'rb') as file:
+            return file.read()
+    except FileNotFoundError:
+        print(file_path + " not a file.")
+        return None
+    except IsADirectoryError:
+        print(file_path + " is a dir.")
+        return None
