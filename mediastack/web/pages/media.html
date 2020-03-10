@@ -2,7 +2,7 @@
 
 {% block body %}
     <div id=media>
-      <a href="/media?hash={{ media.next_media.hash }}">
+      <a href="?hash={{ media.next_media.hash }}">
         <img id=image src="{{ media.path }}"/>
       </a>
     </div>
@@ -29,7 +29,7 @@
     </div>
     {% if media.album_name != None %}
     <div id=album_footer>
-      <p><a href="/media?hash={{ media.previous_media.hash }}"> << </a>{{ media.album_index + 1}} / {{ media.album.length }}<a href="/media?hash={{ media.next_media.hash }}"> >> </a></p>
+      <p><a href="?hash={{ media.previous_media.hash }}"> << </a>{{ media.album_index + 1}} / {{ media.album.length }}<a href="?hash={{ media.next_media.hash }}"> >> </a></p>
     </div>
     {% endif %}
 {% endblock %}

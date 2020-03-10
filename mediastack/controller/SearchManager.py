@@ -1,17 +1,30 @@
 from typing import List, Set, Dict
 from mediastack.model.Media import Media
+from mediastack.model.Album import Album
 
 class SearchManager:
 
-    def search(self, media_list: List[Media], query_list: List[str]) -> List[Media]:
+    def search(self, media_list: List[Media], query_list: List[str], album_list: List[Album] = []) -> List[Media]:
+
         if query_list is None:
-            return media_list
+            return media_list + [album.cover for album in album_list]
 
         special_queries = self._get_special_queries(query_list)
         tag_queries = set(query_list).difference(special_queries)
 
         if len(special_queries) == 0 and len(tag_queries) == 0 or query_list[0] == '':
-            return media_list
+            return media_list + [album.cover for album in album_list]
+
+        # The goal of passing an album list is to evaluate each album 
+        # cover as if it has album.media_tags as its tags.
+        # TODO: This is scuffed
+        cover_list = []
+        for album in album_list:
+            cover = album.cover
+            cover.tags += album.media_tags
+            cover_list.append(cover)
+
+        media_list = media_list + cover_list
 
         new_media_set = self._get_media_from_special_queries(media_list, special_queries)
         new_media_set = self._get_media_from_tag_queries(new_media_set, tag_queries)
@@ -79,8 +92,7 @@ class SearchManager:
     def _remove_media_that_does_not_contain_all_tags(self, media_set: Set[Media], tags: List[str]) -> Set[Media]:
         return {media for media in media_set if self._does_media_contain_all_tags(media, tags)}
 
-    def _remove_media_that_contains_tags(self, media_list: List[Media], media_set: Set[Media], tags: List[str]) \
-            -> Set[Media]:
+    def _remove_media_that_contains_tags(self, media_list: List[Media], media_set: Set[Media], tags: List[str]) -> Set[Media]:
         return media_set.difference(self._get_media_that_contains_tags(media_list, tags))
 
     def _does_media_contain_all_tags(self, media: Media, tags: List[str]) -> bool:
