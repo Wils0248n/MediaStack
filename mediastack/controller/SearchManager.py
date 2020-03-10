@@ -4,25 +4,25 @@ from mediastack.model.Media import Media
 class SearchManager:
 
     def search(self, media_list: List[Media], query_list: List[str]) -> List[Media]:
-        special_queries = self.__get_special_queries(query_list)
+        special_queries = self._get_special_queries(query_list)
         tag_queries = set(query_list).difference(special_queries)
 
         if len(special_queries) == 0 and len(tag_queries) == 0 or query_list[0] == '':
             return media_list
 
-        new_media_set = self.__get_media_from_special_queries(media_list, special_queries)
-        new_media_set = self.__get_media_from_tag_queries(new_media_set, tag_queries)
+        new_media_set = self._get_media_from_special_queries(media_list, special_queries)
+        new_media_set = self._get_media_from_tag_queries(new_media_set, tag_queries)
 
         return list(new_media_set)
 
-    def __get_special_queries(self, query_tags: List[str]) -> Set[str]:
+    def _get_special_queries(self, query_tags: List[str]) -> Set[str]:
         special_queries = set()
         for tag in query_tags:
             if ':' in tag:
                 special_queries.add(tag)
         return special_queries
 
-    def __get_media_from_special_queries(self, media_list: List[Media], special_queries: List[str]) -> Set[Media]:
+    def _get_media_from_special_queries(self, media_list: List[Media], special_queries: List[str]) -> Set[Media]:
         new_media_set = set(media_list)
 
         if len(special_queries) == 0:
@@ -49,7 +49,7 @@ class SearchManager:
 
         return new_media_set
 
-    def __get_media_from_tag_queries(self, media_set: Set[Media], tag_queries: List[str]) -> Set[Media]:
+    def _get_media_from_tag_queries(self, media_set: Set[Media], tag_queries: List[str]) -> Set[Media]:
         if len(tag_queries) == 0:
             return media_set
 
@@ -60,12 +60,12 @@ class SearchManager:
                 blacklist_tags.append(tag_query[1:])
             else:
                 whitelist_tags.append(tag_query)
-        new_media_set = self.__get_media_that_contains_tags(media_set, whitelist_tags)
-        new_media_set = self.__remove_media_that_does_not_contain_all_tags(new_media_set, whitelist_tags)
-        new_media_set = self.__remove_media_that_contains_tags(media_set, new_media_set, blacklist_tags)
+        new_media_set = self._get_media_that_contains_tags(media_set, whitelist_tags)
+        new_media_set = self._remove_media_that_does_not_contain_all_tags(new_media_set, whitelist_tags)
+        new_media_set = self._remove_media_that_contains_tags(media_set, new_media_set, blacklist_tags)
         return new_media_set
 
-    def __get_media_that_contains_tags(self, media_list: Set[Media], tags: List[str]) -> Set[Media]:
+    def _get_media_that_contains_tags(self, media_list: Set[Media], tags: List[str]) -> Set[Media]:
         new_media_set = set()
         for media in media_list:
             for tag in tags:
@@ -73,14 +73,14 @@ class SearchManager:
                     new_media_set.add(media)
         return new_media_set
 
-    def __remove_media_that_does_not_contain_all_tags(self, media_set: Set[Media], tags: List[str]) -> Set[Media]:
+    def _remove_media_that_does_not_contain_all_tags(self, media_set: Set[Media], tags: List[str]) -> Set[Media]:
         return {media for media in media_set if self.__does_media_contain_all_tags(media, tags)}
 
-    def __remove_media_that_contains_tags(self, media_list: List[Media], media_set: Set[Media], tags: List[str]) \
+    def _remove_media_that_contains_tags(self, media_list: List[Media], media_set: Set[Media], tags: List[str]) \
             -> Set[Media]:
-        return media_set.difference(self.__get_media_that_contains_tags(media_list, tags))
+        return media_set.difference(self._get_media_that_contains_tags(media_list, tags))
 
-    def __does_media_contain_all_tags(self, media: Media, tags: List[str]) -> bool:
+    def _does_media_contain_all_tags(self, media: Media, tags: List[str]) -> bool:
         for tag in tags:
             if tag not in media.tags:
                 return False
