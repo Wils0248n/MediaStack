@@ -42,14 +42,6 @@ class MediaManager:
         album_media_list.sort()
         return album_media_list
 
-    def count_media_in_album(self, album_name: str) -> int:
-        return self._session.execute(
-            self._session.query(Media)
-            .filter_by(album=album_name)
-            .statement.with_only_columns([func.count()])
-            .order_by(None)
-        ).scalar()
-
     def search(self, criteria: List[str]) -> List[Media]:
         search_result = self._search_manager.search(self.get_media(), criteria)
         search_result.sort()
@@ -63,7 +55,7 @@ class MediaManager:
     def get_media(self) -> List[Media]:
         media_list = list(self._session.query(Media).filter(Media.album == None))
         for album in self._session.query(Album).all():
-            media_list.append(self.find_media(album.cover))
+            media_list.append(album.cover)
         media_list.sort()
         return media_list
 
