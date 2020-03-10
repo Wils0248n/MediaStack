@@ -64,6 +64,9 @@ class Media(Base):
 
     previous_media = property(_get_previous_media)
 
+    def __hash__(self):
+        return hash(self.hash)
+
     def __lt__(self, other):
         if self.category == other.category:
             return self.path < other.path
@@ -75,3 +78,6 @@ class Media(Base):
             return self.path > other.path
         else:
             return self.category.name > other.category.name
+
+    def __eq__(self, other):
+        return self.hash == other.hash

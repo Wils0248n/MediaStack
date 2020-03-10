@@ -39,13 +39,13 @@ class SearchManager:
                 new_media_set = {media for media in new_media_set if media.type is not None and
                                  media.type.lower() == query_query}
             elif query_type == "category":
-                new_media_set = {media for media in new_media_set if media.category is not None and
+                new_media_set = {media for media in new_media_set if media.category_name is not None and
                                  str(media.category).lower() == query_query}
             elif query_type == "artist":
-                new_media_set = {media for media in new_media_set if media.artist is not None and
+                new_media_set = {media for media in new_media_set if media.artist_name is not None and
                                  str(media.artist).lower() == query_query}
             elif query_type == "album":
-                new_media_set = {media for media in new_media_set if media.album is not None and
+                new_media_set = {media for media in new_media_set if media.album_name is not None and
                                  str(media.album).lower() == query_query}
             elif query_type == "source":
                 pass
@@ -77,7 +77,7 @@ class SearchManager:
         return new_media_set
 
     def _remove_media_that_does_not_contain_all_tags(self, media_set: Set[Media], tags: List[str]) -> Set[Media]:
-        return {media for media in media_set if self.__does_media_contain_all_tags(media, tags)}
+        return {media for media in media_set if self._does_media_contain_all_tags(media, tags)}
 
     def _remove_media_that_contains_tags(self, media_list: List[Media], media_set: Set[Media], tags: List[str]) \
             -> Set[Media]:

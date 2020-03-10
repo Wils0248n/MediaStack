@@ -1,3 +1,4 @@
+import sqlalchemy as sa
 import os
 from enum import Enum
 from typing import List, Dict
@@ -7,10 +8,6 @@ from mediastack.model.Tag import Tag
 from mediastack.model.Album import Album
 from mediastack.controller.SearchManager import SearchManager
 from mediastack.controller.MediaInitializer import MediaInitializer
-from sqlalchemy import create_engine, select, exists
-from sqlalchemy.orm import sessionmaker, relationship
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import func
 
 class MediaSet(Enum):
     GENERAL = "general"
@@ -19,9 +16,9 @@ class MediaSet(Enum):
 class MediaManager:
 
     def __init__(self):
-        self._engine = create_engine('sqlite:////media/Projects/MediaStack/test.db', connect_args={'check_same_thread': False})
+        self._engine = sa.create_engine('sqlite:////media/Projects/MediaStack/test.db', connect_args={'check_same_thread': False})
         Base.metadata.create_all(bind=self._engine)
-        self._session_maker = sessionmaker(bind=self._engine)
+        self._session_maker = sa.orm.sessionmaker(bind=self._engine)
         self._session = self._session_maker()
     
         self._media_initializer = MediaInitializer(self._session)
