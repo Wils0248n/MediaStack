@@ -15,7 +15,7 @@ class Album(Base):
         return len(self.media)
 
     cover = property(_get_cover)
-    media_count = property(_get_media_count)
+    length = property(_get_media_count)
 
     def __init__(self, name: str) -> None:
         self.name = name

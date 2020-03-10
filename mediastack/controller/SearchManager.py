@@ -4,6 +4,9 @@ from mediastack.model.Media import Media
 class SearchManager:
 
     def search(self, media_list: List[Media], query_list: List[str]) -> List[Media]:
+        if query_list is None:
+            return media_list
+
         special_queries = self._get_special_queries(query_list)
         tag_queries = set(query_list).difference(special_queries)
 

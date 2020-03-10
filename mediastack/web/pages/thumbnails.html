@@ -9,11 +9,7 @@
   </div>
   <div id="thumbnails">
   {% for media in media_list %}
-    {% if media.album != None %}
-      <a href="/media?album={{ media.album }}&index={{ media.album_index }}">
-    {% else %}
       <a href="/media?hash={{ media.hash }}">
-    {% endif %}
         <img class="thumbnail media_thumbnail" src="thumbs/{{ media.hash }}"/>
       </a>
   {% endfor %}

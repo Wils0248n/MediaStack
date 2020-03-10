@@ -1,4 +1,5 @@
 import os
+from enum import Enum
 from typing import List, Dict
 from mediastack.model.Base import Base
 from mediastack.model.Media import Media
@@ -11,6 +12,9 @@ from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func
 
+class MediaSet(Enum):
+    GENERAL = "general"
+    ALL = "all"
 
 class MediaManager:
 
@@ -28,36 +32,23 @@ class MediaManager:
     def find_media(self, media_hash: str) -> Media:
         return self._session.query(Media).get(media_hash)
 
-    def find_media_by_album(self, album_name: str, album_index: int):
-        return self._session.query(Media).filter(Media.album == album_name, Media.album_index == album_index).first()
-
-    def find_tag(self, tag_name: str) -> Tag:
-        return self._session.query(Tag).get(tag_name)
-
-    def find_album(self, album_name: str) -> Album:
-        return self._session.query(Album).get(album_name)
-
-    def find_all_album_media(self, album_name: str) -> List[Media]:
-        album_media_list = list(self._session.query(Media).filter(Media.album == album_name.lower()))
-        album_media_list.sort()
-        return album_media_list
-
-    def search(self, criteria: List[str]) -> List[Media]:
-        search_result = self._search_manager.search(self.get_media(), criteria)
+    def search(self, media_set: MediaSet, criteria: List[str] = []) -> List[Media]:
+        search_result = self._search_manager.search(self._get_media_set(media_set), criteria)
         search_result.sort()
         return search_result
 
-    def search_all(self, criteria: List[str]) -> List[Media]:
-        search_result = self._search_manager.search(self.get_all_media(), criteria)
-        search_result.sort()
-        return search_result
+    def _get_media_set(self, media_set: MediaSet) -> List[Media]:
+        if (media_set == MediaSet.GENERAL):
+            return self._get_general_media()
+        if (media_set == MediaSet.GENERAL):
+            return self._get_all_media()
 
-    def get_media(self) -> List[Media]:
+    def _get_general_media(self) -> List[Media]:
         media_list = list(self._session.query(Media).filter(Media.album == None))
         for album in self._session.query(Album).all():
             media_list.append(album.cover)
         media_list.sort()
         return media_list
 
-    def get_all_media(self) -> List[Media]:
+    def _get_all_media(self) -> List[Media]:
         return self._session.query(Media).all()
