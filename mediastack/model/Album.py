@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from typing import List
 from mediastack.model.Base import Base
 
 class Album(Base):
@@ -11,11 +12,22 @@ class Album(Base):
         self.media.sort()
         return self.media[0]
 
-    def _get_media_count(self):
-        return len(self.media)
-
     cover = property(_get_cover)
+
+    def _get_media_count(self) -> int:
+        return len(self.media)
+    
     length = property(_get_media_count)
+
+    def _get_media_tags(self):
+        media_tags = []
+        for media in self.media:
+            for tag in media.tags:
+                if tag not in media_tags:
+                    media_tags.append(tag)
+        return media_tags
+
+    media_tags = property(_get_media_tags)
 
     def __init__(self, name: str) -> None:
         self.name = name
