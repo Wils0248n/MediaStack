@@ -3,7 +3,6 @@ from jinja2 import Template
 from flask import Flask, render_template, url_for, request, redirect, send_file
 from mediastack.controller.MediaManager import MediaManager
 from mediastack.controller.MediaManager import MediaSet
-from mediastack.model.Media import Media
 
 logging.getLogger('iptcinfo').setLevel(logging.ERROR)
 

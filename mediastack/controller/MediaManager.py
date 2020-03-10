@@ -1,10 +1,8 @@
 import sqlalchemy as sa
-import os
 from enum import Enum
-from typing import List, Dict
+from typing import List
 from mediastack.model.Base import Base
 from mediastack.model.Media import Media
-from mediastack.model.Tag import Tag
 from mediastack.model.Album import Album
 from mediastack.controller.SearchManager import SearchManager
 from mediastack.controller.MediaInitializer import MediaInitializer
@@ -37,15 +35,14 @@ class MediaManager:
     def _get_media_set(self, media_set: MediaSet) -> List[Media]:
         if (media_set == MediaSet.GENERAL):
             return self._get_general_media()
-        if (media_set == MediaSet.GENERAL):
+        if (media_set == MediaSet.ALL):
             return self._get_all_media()
 
     def _get_general_media(self) -> List[Media]:
-        media_list = list(self._session.query(Media).filter(Media.album == None))
+        general_media = list(self._session.query(Media).filter(Media.album == None))
         for album in self._session.query(Album).all():
-            media_list.append(album.cover)
-        media_list.sort()
-        return media_list
+            general_media.append(album.cover)
+        return general_media
 
     def _get_all_media(self) -> List[Media]:
         return self._session.query(Media).all()
