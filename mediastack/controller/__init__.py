@@ -1,2 +1,3 @@
-from controller.MediaManager import MediaManager
-from controller.SearchManager import SearchManager
+from mediastack.controller.MediaManager import MediaManager
+from mediastack.controller.SearchManager import SearchManager
+from mediastack.controller.MediaInitializer import MediaInitializer

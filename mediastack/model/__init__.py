@@ -1,3 +1,3 @@
-from model.Media import Media
-from model.Tag import Tag
-from model.MediaType import MediaType
+from mediastack.model.Media import Media
+from mediastack.model.Album import Album
+from mediastack.model.Tag import Tag

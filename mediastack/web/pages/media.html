@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div id=media>
+      {% if media.album != None %}
+      <a href="/media?album={{ media.album }}&index={{ media.album_index }}">
+      {% else %}
+      <a href="/media?hash={{ media.hash }}">
+      {% endif %}
+        <img id=image src="{{ media.path }}"/>
+      </a>
+    </div>
+    <div id=media_info>
+      <p>Type:<a href="/media?search=type:{{ media.type }}">{{ media.type }}</a></p>
+      <p>Category:<a href="/media?search=category:{{ media.category }}">{{ media.category }}</a></p>
+      <p>Artist:<a href="/media?search=artist:{{ media.artist }}">{{ media.artist }}</a></p>
+      <p>Album:<a href="/album?name={{ media.album }}">{{ media.album }}</a></p>
+      <p>Source:<a href="{{ media.source }}">source website</a></p>
+      <p>Tags:</p>
+      <ul style="list-style-type:none;">
+      {% for tag in media.tags %}
+        <li>
+          <a href="/media?search={{ tag }}">{{ tag }}</a><p>({{ tag.media_count }})</p>
+        </li>
+      {% endfor %}
+      </ul>
+      <div id="add_tag">
+        <form action="" method="post">
+          <input type="text" placeholder="Tag Name" name="add_tag"/>
+          <button type="submit" text="Add Tag">Add Tag</button>
+        </form>
+      </div>
+    </div>
+    {% if media.album != None %}
+    <div id=album_footer>
+      <p><a href="/media?album={{ media.album }}&index={{ previous_index }}"> << </a>{{ media.album_index + 1}} / {{ album_length }}<a href="/media?album={{ media.album }}&index={{ next_index }}"> >> </a></p>
+    </div>
+    {% endif %}
+{% endblock %}

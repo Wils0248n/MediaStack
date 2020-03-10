@@ -1,7 +1,7 @@
 import os
 import subprocess
 from PIL import Image, UnidentifiedImageError
-from model.Media import Media
+from mediastack.model.Media import Media
 
 
 class Thumbnailer:

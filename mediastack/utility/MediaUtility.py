@@ -4,7 +4,6 @@ import filetype
 import logging
 from typing import List, Dict
 from iptcinfo3 import IPTCInfo
-from model.MediaType import MediaType
 
 logging.getLogger('iptcinfo').setLevel(logging.ERROR)
 

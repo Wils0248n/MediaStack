@@ -1,5 +1,5 @@
 from typing import List, Set, Dict
-from model.Media import Media
+from mediastack.model.Media import Media
 
 class SearchManager:
 

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>MediaStack</title>
+</head>
+<body>
+    <div id="header">
+        <a href="/media">
+          <h4>Media</h4>
+        </a>
+        <h4> | </h4>
+        <a href="/">
+          <h4>Index</h4>
+        </a>
+        <h4> | </h4>
+        <a href="/all">
+          <h4>All</h4>
+        </a>
+      </div>
+    {% block body %}{% endblock %}
+</body>
+</html>
