@@ -91,6 +91,9 @@ class MediaInitializer:
             media_album.media.append(media)
 
     def _get_tag(self, tag_name: str) -> Tag:
+        if tag_name is None:
+            return None
+        tag_name = self._sanitize_input(tag_name)
         tag = self._session.query(Tag).filter(Tag.name == tag_name).first()
         if (tag is None):
             return Tag(tag_name)
@@ -99,6 +102,7 @@ class MediaInitializer:
     def _get_category(self, category_name: str) -> Category:
         if (category_name is None):
             return None;
+        category_name = self._sanitize_input(category_name)
         category = self._session.query(Category).filter(Category.name == category_name).first()
         if (category is None):
             return Category(category_name)
@@ -107,6 +111,7 @@ class MediaInitializer:
     def _get_artist(self, artist_name: str) -> Artist:
         if (artist_name is None):
             return None
+        artist_name = self._sanitize_input(artist_name)
         artist = self._session.query(Artist).filter(Artist.name == artist_name).first()
         if (artist is None):
             return Artist(artist_name)
@@ -115,7 +120,11 @@ class MediaInitializer:
     def _get_album(self, album_name: str) -> Album:
         if (album_name is None):
             return None
+        album_name = self._sanitize_input(album_name)
         album = self._session.query(Album).filter(Album.name == album_name).first()
         if (album is None):
             return Album(album_name)
         return album
+
+    def _sanitize_input(self, input: str) -> str:
+        return input.replace(" ", "_")

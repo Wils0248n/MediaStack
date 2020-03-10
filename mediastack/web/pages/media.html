@@ -7,16 +7,16 @@
       </a>
     </div>
     <div id=media_info>
-      <p>Type:<a href="/general?search=type:{{ media.type }}">{{ media.type }}</a></p>
-      <p>Category:<a href="/general?search=category:{{ media.category_name }}">{{ media.category_name }}</a></p>
-      <p>Artist:<a href="/general?search=artist:{{ media.artist_name }}">{{ media.artist_name }}</a></p>
-      <p>Album:<a href="/general?search=album:{{ media.album_name }}">{{ media.album_name }}</a></p>
+      <p>Type:<a href="?search=type:{{ media.type }}">{{ media.type }}</a></p>
+      <p>Category:<a href="?search=category:{{ media.category_name }}">{{ media.category_name }}</a></p>
+      <p>Artist:<a href="?search=artist:{{ media.artist_name }}">{{ media.artist_name }}</a></p>
+      <p>Album:<a href="?search=album:{{ media.album_name }}">{{ media.album_name }}</a></p>
       <p>Source:<a href="{{ media.source }}">source website</a></p>
       <p>Tags:</p>
       <ul style="list-style-type:none;">
       {% for tag in media.tags %}
         <li>
-          <a href="/general?search={{ tag }}">{{ tag }}</a><p>({{ tag.media_count }})</p>
+          <a href="?search={{ tag }}">{{ tag }}</a><p>({{ tag.media_count }})</p>
         </li>
       {% endfor %}
       </ul>

@@ -15,6 +15,9 @@ def index():
 
 @flask.route('/all', methods=['GET'])
 def all_media_page():
+    if request.args.get('hash') is not None:
+        media = media_manager.find_media(request.args.get('hash'))
+        return render_template('media.html', media=media)
     search = request.args.get('search')
     if search is not None:
         search = search.split(' ')
@@ -22,17 +25,13 @@ def all_media_page():
 
 @flask.route('/general', methods=['GET'])
 def general_media_page():
+    if request.args.get('hash') is not None:
+        media = media_manager.find_media(request.args.get('hash'))
+        return render_template('media.html', media=media)
     search = request.args.get('search')
     if search is not None:
         search = search.split(' ')
     return render_template('thumbnails.html', media_list=media_manager.search(MediaSet.GENERAL, search))
-
-@flask.route('/media', methods=['GET'])
-def media_page():
-    if request.args.get('hash') is not None:
-        media = media_manager.find_media(request.args.get('hash'))
-        return render_template('media.html', media=media)
-    return None
 
 @flask.route('/thumbs/<string:hash>', methods=['GET'])
 def thumbnail_file(hash):
