@@ -11,26 +11,16 @@ class Media(Base):
     __tablename__ = 'media'
 
     hash = sa.Column('hash', sa.String, primary_key=True)
-    path = sa.Column('path', sa.String, nullable=False)
-    category = sa.Column('category', sa.String)
-    artist = sa.Column('artist', sa.String)
-    album_name = sa.Column('album_name', sa.String, sa.ForeignKey('albums.name'))
-    album_index = sa.Column('album_index', sa.Integer)
+    path = sa.Column('path', sa.String, nullable=True)
+    category_name = sa.Column(sa.String, sa.ForeignKey('categories.name'), nullable=True)
+    artist_name = sa.Column(sa.String, sa.ForeignKey('artists.name'), nullable=True)
+    album_name = sa.Column(sa.String, sa.ForeignKey('albums.name'), nullable=True)
+
     type = sa.Column('type', sa.String)
     score = sa.Column('score', sa.Integer)
     source = sa.Column('source', sa.String)
+    
     tags = sa.orm.relationship("Tag", secondary=MediaTag, back_populates="media")
-
-    def __init__(self, media_path: str) -> None:
-        meta = extract_media_meta(media_path)
-        self.hash = hash_file(media_path)
-        self.path = media_path
-        self.category = meta["category"]
-        self.artist = meta["artist"]
-        self.album_name = meta["album"]
-        self.source = extract_source(media_path)
-        self.type = determine_media_type(media_path)
-        self.score = 0
 
     def __lt__(self, other):
         if self.category == other.category:
