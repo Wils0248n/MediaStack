@@ -6,7 +6,16 @@ class Album(Base):
 
     name = sa.Column('name', sa.String, primary_key=True)
     media = sa.orm.relationship('Media', backref='album', lazy='select')
-    #cover = sa.Column('cover', sa.String, nullable=False)
+
+    def _get_cover(self):
+        self.media.sort()
+        return self.media[0]
+
+    def _get_media_count(self):
+        return len(self.media)
+
+    cover = property(_get_cover)
+    media_count = property(_get_media_count)
 
     def __init__(self, name: str) -> None:
         self.name = name
