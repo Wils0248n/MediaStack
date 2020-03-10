@@ -39,10 +39,10 @@ class MediaManager:
             return self._get_all_media()
 
     def _get_general_media(self) -> List[Media]:
-        general_media = list(self._session.query(Media).filter(Media.album == None))
+        general_media = list(self._session.query(Media).filter(Media.album == None, Media.path is not None))
         for album in self._session.query(Album).all():
             general_media.append(album.cover)
         return general_media
 
     def _get_all_media(self) -> List[Media]:
-        return self._session.query(Media).all()
+        return list(self._session.query(Media).filter(Media.path is not None))
