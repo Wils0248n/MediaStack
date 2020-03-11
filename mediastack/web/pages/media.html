@@ -7,23 +7,71 @@
       </a>
     </div>
     <div id=media_info>
-      <p>Type:<a href="?search=type:{{ media.type }}">{{ media.type }}</a></p>
-      <p>Category:<a href="?search=category:{{ media.category_name }}">{{ media.category_name }}</a></p>
-      <p>Artist:<a href="?search=artist:{{ media.artist_name }}">{{ media.artist_name }}</a></p>
-      <p>Album:<a href="?search=album:{{ media.album_name }}">{{ media.album_name }}</a></p>
-      <p>Source:<a href="{{ media.source }}">source website</a></p>
+
+      <p>Type: <a href="?search=type:{{ media.type }}">{{ media.type }}</a></p>
+      <p>Category: <a href="?search=category:{{ media.category_name }}">{{ media.category_name }}</a></p>
+      <p>Artist: <a href="?search=artist:{{ media.artist_name }}">{{ media.artist_name }}</a></p>
+      <p>Album: <a href="?search=album:{{ media.album_name }}">{{ media.album_name }}</a></p>
+
+      {% if edit %}
+      <div class="edit_form">
+        <form action="" method="post">
+          <p>Source:</p>
+          <input type="text" value="{{ media.source }}" name="source"/>
+          <button type="submit" text="Apply">Apply</button>
+        </form>
+      </div>
+      {% else %}
+      <p>Source: <a href="{{ media.source }}">source website</a></p>
+      {% endif %}
+
+      {% if edit %}
+      <div class="edit_form">
+        <form action="" method="post">
+          <p>Rating:</p>
+          <input type="text" value="{{ media.score }}" name="rating"/>
+          <button type="submit" text="Apply">Apply</button>
+        </form>
+      </div>
+      {% else %}
+      <p>Rating: <a href="?search=rating:{{ media.score }}">{{ media.score }}</a></p>
+      {% endif %}
+      
       <p>Tags:</p>
       <ul style="list-style-type:none;">
       {% for tag in media.tags %}
         <li>
-          <a href="?search={{ tag }}">{{ tag }}</a><p>({{ tag.media_count }})</p>
+          {% if edit %}
+          <div class="edit_form">
+            <form action="" method="post">
+              {% endif %}
+              <a href="?search={{ tag }}">{{ tag }}</a><p>({{ tag.media_count }})</p>
+              {% if edit %}
+              <input type="submit" value="Remove" name="{{ tag }}" />
+            </form>
+          </div>
+          {% endif %}
         </li>
       {% endfor %}
       </ul>
-      <div id="add_tag">
+
+      {% if edit %}
+      <div class="edit_form">
         <form action="" method="post">
-          <input type="text" placeholder="Tag Name" name="add_tag"/>
+          <input type="text" placeholder="Tag Name" name="add_tag" autofocus/>
           <button type="submit" text="Add Tag">Add Tag</button>
+        </form>
+      </div>
+      {% endif %}
+
+      <div id="toggle_edit">
+        {% if edit %}
+        <form>
+          <input type="button" onclick="window.location.href = window.location.pathname + '?hash={{ media.hash }}'" value="Done"/>
+        {% else %}
+        <form>
+          <input type="button" onclick="window.location.href = window.location.pathname + '?hash={{ media.hash }}&edit=true'" value="Edit"/>
+        {% endif %}
         </form>
       </div>
     </div>
