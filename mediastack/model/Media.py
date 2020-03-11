@@ -81,3 +81,4 @@ class Media(Base):
 
     def __eq__(self, other):
         return self.hash == other.hash
+    

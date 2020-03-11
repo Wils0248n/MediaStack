@@ -57,7 +57,6 @@ def _handle_post_request(media, forms_data):
     else:
         media_manager.remove_tag(media, next(forms_data.keys()))
 
-
 def main():
     flask.run()
 

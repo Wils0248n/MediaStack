@@ -63,13 +63,6 @@ class MediaManager:
             pass
 
     def search(self, media_set: MediaSet, criteria: List[str] = []) -> List[Media]:
-        start_time = time.time()
         search_result = self._search_manager.search(self._session, media_set, criteria)
-        #self._session.rollback()
         search_result.sort()
-        print("Search took", time.time() - start_time, "to run")
         return search_result
-
-    
-
-    
