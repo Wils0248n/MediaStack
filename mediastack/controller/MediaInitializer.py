@@ -68,7 +68,8 @@ class MediaInitializer:
             current_tag = self._get_tag(tag)
             self._session.add(current_tag)
             media.tags.append(current_tag)
-
+            if media.album is not None and current_tag not in media.album.tags:
+                media.album.tags.append(current_tag)
         self._thumbnailer.create_thumbnail(media)
         return media
 

@@ -1,12 +1,14 @@
 import sqlalchemy as sa
 from mediastack.model.Base import Base
 from mediastack.model.Media import MediaTag
+from mediastack.model.Album import AlbumTag
 
 class Tag(Base):
     __tablename__ = 'tags'
 
     name = sa.Column('name', sa.String, primary_key=True)
     media = sa.orm.relationship("Media", secondary=MediaTag, back_populates="tags")
+    albums = sa.orm.relationship("Album", secondary=AlbumTag, back_populates="tags")
 
     media_count = sa.orm.column_property(
         sa.sql.expression.select(

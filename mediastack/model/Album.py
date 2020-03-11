@@ -2,6 +2,10 @@ import sqlalchemy as sa
 from typing import List
 from mediastack.model.Base import Base
 
+AlbumTag = sa.Table('album_tag', Base.metadata, 
+    sa.Column('album', sa.String, sa.ForeignKey('albums.name')),
+    sa.Column('tag', sa.String, sa.ForeignKey('tags.name')))
+
 class Album(Base):
     __tablename__ = 'albums'
 
@@ -19,15 +23,7 @@ class Album(Base):
     
     length = property(_get_media_count)
 
-    def _get_media_tags(self):
-        media_tags = []
-        for media in self.media:
-            for tag in media.tags:
-                if tag not in media_tags:
-                    media_tags.append(tag)
-        return media_tags
-
-    media_tags = property(_get_media_tags)
+    tags = sa.orm.relationship("Tag", secondary=AlbumTag, back_populates="albums")
 
     def __init__(self, name: str) -> None:
         self.name = name

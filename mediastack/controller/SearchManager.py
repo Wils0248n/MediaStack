@@ -1,35 +1,45 @@
+import sqlalchemy as sa
 from typing import List, Set, Dict
 from mediastack.model.Media import Media
 from mediastack.model.Album import Album
+from mediastack.model.Tag import Tag
+from mediastack.controller.MediaSet import MediaSet
 
 class SearchManager:
 
-    def search(self, media_list: List[Media], query_list: List[str], album_list: List[Album] = []) -> List[Media]:
+    def __init__(self):
+        self._session: sa.orm.Session = None
+        self._media_list: List[Media] = []
+        self._album_list: List[Album] = []
+        self._criteria: List[str] = None
 
-        if query_list is None:
-            return media_list + [album.cover for album in album_list]
+    def search(self, session: sa.orm.Session, media_set: MediaSet, query_list: List[str]) -> List[Media]:
+        if session is None or media_set is None:
+            return None
+
+        self._session = session
+        self._criteria = query_list
+
+        if media_set == MediaSet.GENERAL:
+            self._media_list = list(self._session.query(Media).filter(Media.album == None, Media.path is not None))
+            self._album_list = list(self._session.query(Album).filter(Album.cover is not None))
+        elif media_set == MediaSet.ALL:
+            self._media_list = list(self._session.query(Media).filter(Media.path is not None))
+            self._album_list = []
+
+        if query_list is None or len(query_list) == 0:
+            return self._media_list + [album.cover for album in self._album_list]
 
         special_queries = self._get_special_queries(query_list)
         tag_queries = set(query_list).difference(special_queries)
 
         if len(special_queries) == 0 and len(tag_queries) == 0 or query_list[0] == '':
-            return media_list + [album.cover for album in album_list]
+            return self._media_list + [album.cover for album in self._album_list]
 
-        # The goal of passing an album list is to evaluate each album 
-        # cover as if it has album.media_tags as its tags.
-        # TODO: This is scuffed
-        cover_list = []
-        for album in album_list:
-            cover = album.cover
-            cover.tags += album.media_tags
-            cover_list.append(cover)
+        self._filter_media(special_queries, tag_queries)
+        self._filter_albums(special_queries, tag_queries)
 
-        media_list = media_list + cover_list
-
-        new_media_set = self._get_media_from_special_queries(media_list, special_queries)
-        new_media_set = self._get_media_from_tag_queries(new_media_set, tag_queries)
-
-        return list(new_media_set)
+        return self._media_list + [album.cover for album in self._album_list]
 
     def _get_special_queries(self, query_tags: List[str]) -> Set[str]:
         special_queries = set()
@@ -38,37 +48,32 @@ class SearchManager:
                 special_queries.add(tag)
         return special_queries
 
-    def _get_media_from_special_queries(self, media_list: List[Media], special_queries: List[str]) -> Set[Media]:
-        new_media_set = set(media_list)
+    def _filter_media(self, special_queries, tag_queries):
+        self._filter_media_by_special_queries(special_queries)
+        self._filter_media_by_tag_queries(tag_queries)
 
+    def _filter_media_by_special_queries(self, special_queries: List[str]):
         if len(special_queries) == 0:
-            return new_media_set
+            return
 
         for query in special_queries:
             query_type = query.split(":")[0].lower()
             query_query = query.split(":")[1].lower()
 
             if query_type == "type":
-                new_media_set = {media for media in new_media_set if media.type is not None and
-                                 media.type.lower() == query_query}
+                self._media_list = [media for media in self._media_list  if media.type is not None and
+                                 media.type.lower() == query_query]
             elif query_type == "category":
-                new_media_set = {media for media in new_media_set if media.category_name is not None and
-                                 str(media.category).lower() == query_query}
+                self._media_list  = [media for media in self._media_list  if media.category_name is not None and
+                                 str(media.category).lower() == query_query]
             elif query_type == "artist":
-                new_media_set = {media for media in new_media_set if media.artist_name is not None and
-                                 str(media.artist).lower() == query_query}
+                self._media_list  = [media for media in self._media_list  if media.artist_name is not None and
+                                 str(media.artist).lower() == query_query]
             elif query_type == "album":
-                new_media_set = {media for media in new_media_set if media.album_name is not None and
-                                 str(media.album).lower() == query_query}
-            elif query_type == "source":
-                pass
+                self._media_list  = [media for media in self._media_list if media.album_name is not None and
+                                 str(media.album).lower() == query_query]
 
-        return new_media_set
-
-    def _get_media_from_tag_queries(self, media_set: Set[Media], tag_queries: List[str]) -> Set[Media]:
-        if len(tag_queries) == 0:
-            return media_set
-
+    def _filter_media_by_tag_queries(self, tag_queries: List[str]):
         whitelist_tags = []
         blacklist_tags = []
         for tag_query in tag_queries:
@@ -76,27 +81,62 @@ class SearchManager:
                 blacklist_tags.append(tag_query[1:])
             else:
                 whitelist_tags.append(tag_query)
-        new_media_set = self._get_media_that_contains_tags(media_set, whitelist_tags)
-        new_media_set = self._remove_media_that_does_not_contain_all_tags(new_media_set, whitelist_tags)
-        new_media_set = self._remove_media_that_contains_tags(media_set, new_media_set, blacklist_tags)
-        return new_media_set
 
-    def _get_media_that_contains_tags(self, media_list: Set[Media], tags: List[str]) -> Set[Media]:
-        new_media_set = set()
-        for media in media_list:
-            for tag in tags:
-                if tag in media.tags:
-                    new_media_set.add(media)
-        return new_media_set
+        for tag_name in whitelist_tags:
+            current_tag = self._session.query(Tag).get(tag_name)
+            if current_tag is None:
+                continue
+            self._media_list = [media for media in self._media_list if current_tag in media.tags]
 
-    def _remove_media_that_does_not_contain_all_tags(self, media_set: Set[Media], tags: List[str]) -> Set[Media]:
-        return {media for media in media_set if self._does_media_contain_all_tags(media, tags)}
+        for tag_name in blacklist_tags:
+            current_tag = self._session.query(Tag).get(tag_name)
+            if current_tag is None:
+                continue
+            self._media_list = [media for media in self._media_list if current_tag not in media.tags]
 
-    def _remove_media_that_contains_tags(self, media_list: List[Media], media_set: Set[Media], tags: List[str]) -> Set[Media]:
-        return media_set.difference(self._get_media_that_contains_tags(media_list, tags))
+    def _filter_albums(self, special_queries, tag_queries):
+        self._filter_albums_by_special_queries(special_queries)
+        self._filter_albums_by_tag_queries(tag_queries)
 
-    def _does_media_contain_all_tags(self, media: Media, tags: List[str]) -> bool:
-        for tag in tags:
-            if tag not in media.tags:
-                return False
-        return True
+    def _filter_albums_by_special_queries(self, special_queries: List[str]):
+        if len(special_queries) == 0:
+            return
+
+        for query in special_queries:
+            query_type = query.split(":")[0].lower()
+            query_query = query.split(":")[1].lower()
+
+            if query_type == "type":
+                self._album_list = [album for album in self._album_list  if album.cover.type is not None and
+                                 album.cover.type.lower() == query_query]
+            elif query_type == "category":
+                self._album_list  = [album for album in self._album_list  if album.cover.category_name is not None and
+                                 str(album.cover.category_name).lower() == query_query]
+            elif query_type == "artist":
+                self._album_list  = [album for album in self._album_list  if album.cover.artist_name is not None and
+                                 str(album.cover.artist_name).lower() == query_query]
+            elif query_type == "album":
+                self._album_list  = [album for album in self._album_list if album.name is not None and
+                                 str(album.name).lower() == query_query]
+
+    def _filter_albums_by_tag_queries(self, tag_queries: List[str]):
+        whitelist_tags = []
+        blacklist_tags = []
+        for tag_query in tag_queries:
+            if tag_query[0] == "-":
+                blacklist_tags.append(tag_query[1:])
+            else:
+                whitelist_tags.append(tag_query)
+
+        for tag_name in whitelist_tags:
+            current_tag = self._session.query(Tag).get(tag_name)
+            if current_tag is None:
+                continue
+            self._album_list = [album for album in self._album_list if current_tag in album.tags]
+
+        for tag_name in blacklist_tags:
+            current_tag = self._session.query(Tag).get(tag_name)
+            if current_tag is None:
+                continue
+            self._album_list = [album for album in self._album_list if current_tag not in album.tags]
+    
