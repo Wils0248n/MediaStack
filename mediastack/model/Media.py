@@ -2,7 +2,6 @@ from enum import Enum
 import sqlalchemy as sa
 from mediastack.model.Base import Base
 from mediastack.model.Album import Album
-from mediastack.utility.MediaUtility import extract_media_meta, hash_file, extract_source, determine_media_type
 
 MediaTag = sa.Table('media_tag', Base.metadata, 
     sa.Column('media', sa.String, sa.ForeignKey('media.hash')),
