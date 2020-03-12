@@ -56,13 +56,8 @@ class MediaInitializer:
 
     def _initialize_media(self, media_path: str) -> Media:
         media = Media()
-        media.hash = hash_file(media_path)
-        media.path = media_path
-        media.source = extract_source(media_path)
         media.type = determine_media_type(media_path)
-        media.score = 0
-
-        self._initialize_media_references(media)
+        media.path = media_path
 
         for tag in extract_keywords(media_path):
             current_tag = self._get_tag(tag)
@@ -70,7 +65,18 @@ class MediaInitializer:
             media.tags.append(current_tag)
             if media.album is not None and current_tag not in media.album.tags:
                 media.album.tags.append(current_tag)
+
+        media.source = extract_source(media_path)
+        media.score = extract_score(media_path)
+
+        #if (media.type == "image"):
+            #stripMetadata(media.path)
+
+        media.hash = hash_file(media_path)
         self._thumbnailer.create_thumbnail(media)
+
+        self._initialize_media_references(media)
+
         return media
 
     def _initialize_media_references(self, media: Media):

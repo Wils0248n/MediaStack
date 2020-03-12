@@ -4,6 +4,7 @@ import filetype
 import logging
 from typing import List, Dict
 from iptcinfo3 import IPTCInfo
+from PIL import Image
 
 logging.getLogger('iptcinfo').setLevel(logging.ERROR)
 
@@ -51,7 +52,18 @@ def extract_source(media_path: str) -> str:
     if source is not None:
         return source.decode("utf-8")
     else:
-        return None
+        source = IPTCInfo(media_path)['source']
+        if source is not None:
+            return source.decode("utf-8")
+        else:
+            return None
+
+def extract_score(media_path: str) -> int:
+    score = IPTCInfo(media_path)['urgency']
+    if score is not None:
+        score = int(score.decode("utf-8"))
+        return score
+    return 0
 
 def determine_media_type(media_path: str) -> str:
     file_type = filetype.guess(media_path)
@@ -82,3 +94,31 @@ def read_file_bytes(file_path: str) -> bytes:
     except IsADirectoryError:
         print(file_path + " is a dir.")
         return None
+
+def stripMetadata(file_path: str):
+    image = Image.open(file_path)
+
+    #os.rename(file_path, file_path + ".bak")
+
+    data = list(image.getdata())
+    image_without_exif = Image.new(image.mode, image.size)
+    image_without_exif.putdata(data)
+
+    image_without_exif.save(file_path, format=image.format)
+
+def writeIPTCInfoToImage(media):
+    previous_hash = media.hash
+    try:
+        info = IPTCInfo(media.path)
+        if (media.source is not None):
+            info['source'] = media.source
+        if (media.tags is not None and len(media.tags) > 0):
+            info['keywords'] = [tag.name.encode() for tag in media.tags]
+        if (media.score is not None):
+            info['urgency'] = str(media.score)
+        info.save()
+        media.hash = hash_file(media.path)
+        os.rename("thumbs/" + previous_hash, "thumbs/" + media.hash)
+        os.remove(media.path + '~')
+    except AttributeError:
+        print("Error writing metadata to " + media.path)

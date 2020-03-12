@@ -4,11 +4,10 @@ from mediastack.model.Base import Base
 from mediastack.model.Media import Media
 from mediastack.model.Album import Album
 from mediastack.model.Tag import Tag
+from mediastack.utility.MediaUtility import writeIPTCInfoToImage
+from mediastack.utility.MediaInitializer import MediaInitializer
 from mediastack.controller.SearchManager import SearchManager
-from mediastack.controller.MediaInitializer import MediaInitializer
 from mediastack.controller.MediaSet import MediaSet
-
-import time
 
 class MediaManager:
 
@@ -40,27 +39,31 @@ class MediaManager:
     def add_tag(self, media: Media, tag_name: str):
         tag = self.find_tag(tag_name)
         media.tags.append(tag)
+        writeIPTCInfoToImage(media)
         self._session.commit()
 
     def remove_tag(self, media: Media, tag_name: str):
         tag = self.find_tag(tag_name)
         if tag in media.tags:
             media.tags.remove(tag)
+        writeIPTCInfoToImage(media)
         self._session.commit()
 
     def change_source(self, media: Media, new_source: str):
         try:
             media.source = new_source
+            writeIPTCInfoToImage(media)
             self._session.commit()
         except:
-            pass
+            print("Error occured when changing source of " + media.path)
 
     def change_score(self, media: Media, new_score: str):
         try:
             media.score = int(new_score)
+            writeIPTCInfoToImage(media)
             self._session.commit()
         except:
-            pass
+            print("Error occured when changing score of " + media.path)
 
     def search(self, media_set: MediaSet, criteria: List[str] = []) -> List[Media]:
         search_result = self._search_manager.search(self._session, media_set, criteria)
