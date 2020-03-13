@@ -43,7 +43,7 @@ class MediaIO:
         media_metadata["source"] = self._extract_source(iptc_info)
         media_metadata["score"] = self._extract_score(iptc_info)
 
-        if self._strip_metadata:
+        if self._strip_metadata and media_metadata["type"] == "image":
             self.stripMetadata(media_path)
 
         media_metadata["hash"] = MediaIO.hash_file(media_path)
