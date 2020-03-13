@@ -38,18 +38,21 @@ class MediaInitializer:
 
     def _intialize_new_media(self, media_paths: List[str]):
         new_media = self._find_new_media(media_paths)
+        #media_in_session = []
         print(str(len(new_media)) + " new media found.")
         for media_file_path in new_media:
             print("Initializing: " + media_file_path)
-            media = self._session.query(Media).filter(Media.hash == MediaIO.hash_file(media_file_path)).first()
+            media_hash = MediaIO.hash_file(media_file_path)
+            media = self._session.query(Media).filter(Media.hash == media_hash).first()
             if media is None:
                 media = self._initialize_media(media_file_path)
                 if media is not None:
                     self._session.add(media)
+                    #media_in_session.append(media_hash)
+            elif os.path.isfile(media.path): #or media_hash in media_in_session:
+                print("WARNING DUPLICATE FILE: " + media_file_path)
+                continue
             else:
-                if os.path.isfile(media.path):
-                    print("WARNING DUPLICATE FILE: " + media_file_path)
-                    return
                 media.path = media_file_path
                 if media.artist_name is not None:
                     media.artist.media.remove(media)
