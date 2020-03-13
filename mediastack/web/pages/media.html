@@ -3,7 +3,14 @@
 {% block body %}
     <div id=media>
       <a href="?hash={{ media.next_media.hash }}">
+        {% if media.type == "image" or media.type == "animated_image" %}
         <img id=image src="{{ media.path }}"/>
+        {% elif media.type == "video" %}
+        <video muted autoplay controls>
+          <source src="{{ media.path }}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video> 
+        {% endif %}
       </a>
     </div>
     <div id=media_info>
@@ -25,16 +32,33 @@
       <p>Source: <a href="{{ media.source }}">source website</a></p>
       {% endif %}
 
+      <p>Rating: <div class='starrr' id='rating'></div> </p>
+      <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.js"></script>
+      <script src="{{ url_for('static', filename='starrr.js') }}"></script>
       {% if edit %}
-      <div class="edit_form">
-        <form action="" method="post">
-          <p>Rating:</p>
-          <input type="text" value="{{ media.score }}" name="rating"/>
-          <button type="submit" text="Apply">Apply</button>
-        </form>
-      </div>
+      <script>
+        $('#rating').starrr({
+          max: 5,
+          rating: "{{ media.score }}",
+          change: function(e, value){
+            if (value) {
+              $.post(window.location.pathname + '?hash={{ media.hash }}&edit=true',
+                { rating: value },
+                function(data, status, xhr) {
+                          alert('status: ' + status + ', data: ' + data.responseData);
+                      }, 'json');
+            }
+          }
+        });
+      </script>
       {% else %}
-      <p>Rating: <a href="?search=rating:{{ media.score }}">{{ media.score }}</a></p>
+      <script>
+        $('#rating').starrr({
+          max: 5,
+          rating: "{{ media.score }}",
+          readOnly: true
+        });
+      </script>
       {% endif %}
       
       <p>Tags:</p>
