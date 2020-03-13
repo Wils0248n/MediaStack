@@ -67,13 +67,13 @@ class Media(Base):
         return hash(self.hash)
 
     def __lt__(self, other):
-        if self.category == other.category:
+        if self.category == other.category or self.category is None or other.category is None:
             return self.path < other.path
         else:
             return self.category.name < other.category.name
 
     def __gt__(self, other):
-        if self.category == other.category:
+        if self.category == other.category or self.category is None or other.category is None:
             return self.path > other.path
         else:
             return self.category.name > other.category.name
