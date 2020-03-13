@@ -21,10 +21,10 @@ class SearchManager:
         self._criteria = query_list
 
         if media_set == MediaSet.GENERAL:
-            self._media_list = list(self._session.query(Media).filter(Media.album == None, Media.path is not None))
-            self._album_list = list(self._session.query(Album).filter(Album.cover is not None))
+            self._media_list = list(self._session.query(Media).filter(Media.album == None, Media.path != None))
+            self._album_list = list(self._session.query(Album).filter(Album.cover != None))
         elif media_set == MediaSet.ALL:
-            self._media_list = list(self._session.query(Media).filter(Media.path is not None))
+            self._media_list = list(self._session.query(Media).filter(Media.path != None))
             self._album_list = []
 
         if query_list is None or len(query_list) == 0:
@@ -53,7 +53,7 @@ class SearchManager:
         self._filter_media_by_tag_queries(tag_queries)
 
     def _filter_media_by_special_queries(self, special_queries: List[str]):
-        if len(special_queries) == 0:
+        if len(special_queries) == 0 or len(self._media_list) == 0:
             return
 
         for query in special_queries:
@@ -72,8 +72,17 @@ class SearchManager:
             elif query_type == "album":
                 self._media_list  = [media for media in self._media_list if media.album_name is not None and
                                  str(media.album).lower() == query_query]
+            elif query_type == "rating":
+                try:
+                    score = int(query_query)
+                except:
+                    continue
+                self._media_list = [media for media in self._media_list if media.score == score]
 
     def _filter_media_by_tag_queries(self, tag_queries: List[str]):
+        if len(tag_queries) == 0 or len(self._media_list) == 0:
+            return
+
         whitelist_tags = []
         blacklist_tags = []
         for tag_query in tag_queries:
@@ -99,7 +108,7 @@ class SearchManager:
         self._filter_albums_by_tag_queries(tag_queries)
 
     def _filter_albums_by_special_queries(self, special_queries: List[str]):
-        if len(special_queries) == 0:
+        if len(special_queries) == 0 or len(self._album_list) == 0:
             return
 
         for query in special_queries:
@@ -118,8 +127,17 @@ class SearchManager:
             elif query_type == "album":
                 self._album_list  = [album for album in self._album_list if album.name is not None and
                                  str(album.name).lower() == query_query]
-
+            elif query_type == "rating":
+                try:
+                    score = int(query_query)
+                except:
+                    continue
+                self._album_list = [album for album in self._album_list if album.cover.score == score]
+            
     def _filter_albums_by_tag_queries(self, tag_queries: List[str]):
+        if len(tag_queries) == 0 or len(self._album_list) == 0:
+            return
+
         whitelist_tags = []
         blacklist_tags = []
         for tag_query in tag_queries:
