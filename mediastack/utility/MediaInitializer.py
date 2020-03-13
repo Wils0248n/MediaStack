@@ -1,3 +1,4 @@
+import os
 import sqlalchemy as sa
 from typing import List, Dict
 from mediastack.model.Media import Media
@@ -46,6 +47,9 @@ class MediaInitializer:
                 if media is not None:
                     self._session.add(media)
             else:
+                if os.path.isfile(media.path):
+                    print("WARNING DUPLICATE FILE: " + media_file_path)
+                    return
                 media.path = media_file_path
                 if media.artist_name is not None:
                     media.artist.media.remove(media)
