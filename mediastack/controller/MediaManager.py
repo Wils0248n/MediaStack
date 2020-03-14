@@ -12,7 +12,7 @@ from mediastack.controller.MediaSet import MediaSet
 class MediaManager:
 
     def __init__(self):
-        self._engine = sa.create_engine('sqlite:////media/Projects/MediaStack/test.db', connect_args={'check_same_thread': False})
+        self._engine = sa.create_engine('sqlite:///test.db', connect_args={'check_same_thread': False})
         Base.metadata.create_all(bind=self._engine)
         self._session_maker = sa.orm.sessionmaker(bind=self._engine)
         self._session = self._session_maker()
@@ -39,12 +39,16 @@ class MediaManager:
         return tag
 
     def add_tag(self, media: Media, tag_name: str):
+        if media is None or tag_name is None or len(tag_name) == 0:
+            return
         tag = self.find_tag(tag_name)
         media.tags.append(tag)
         self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
         self._session.commit()
 
     def remove_tag(self, media: Media, tag_name: str):
+        if media is None or tag_name is None or len(tag_name) == 0:
+            return
         tag = self.find_tag(tag_name)
         if tag in media.tags:
             media.tags.remove(tag)
@@ -52,6 +56,8 @@ class MediaManager:
         self._session.commit()
 
     def change_source(self, media: Media, new_source: str):
+        if media is None or new_source is None or len(new_source) == 0:
+            return
         try:
             media.source = new_source
             self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
@@ -60,6 +66,8 @@ class MediaManager:
             print("Error occured when changing source of " + media.path)
 
     def change_score(self, media: Media, new_score: str):
+        if media is None or new_score is None or len(new_score) == 0:
+            return
         try:
             media.score = int(new_score)
             self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
