@@ -10,7 +10,11 @@
   <div id="thumbnails">
   {% for media in media_list %}
       <a href="/mediapage?hash={{ media.hash }}&set={{ set }}">
+        {% if media.album == None %}
         <img class="thumbnail media_thumbnail" src="thumbs/{{ media.hash }}"/>
+        {% else %}
+        <img class="thumbnail album_thumbnail" src="thumbs/{{ media.hash }}"/>
+        {% endif %}
       </a>
   {% endfor %}
   </div>
