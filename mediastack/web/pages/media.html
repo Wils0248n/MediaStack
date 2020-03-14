@@ -33,7 +33,6 @@
       {% endif %}
 
       <p>Rating: <div class='starrr' id='rating'></div> </p>
-      <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.js"></script>
       <script src="{{ url_for('static', filename='starrr.js') }}"></script>
       {% if edit %}
       <script>
@@ -71,7 +70,7 @@
               {% endif %}
               <a href="/searchpage?search={{ tag }}&set={{ set }}">{{ tag }}</a><p>({{ tag.media_count }})</p>
               {% if edit %}
-              <input type="submit" value="Remove" name="{{ tag }}" />
+              <button type="submit" name="{{ tag }}"/>Remove</button>
             </form>
           </div>
           {% endif %}
@@ -91,10 +90,10 @@
       <div id="toggle_edit">
         {% if edit %}
         <form>
-          <input type="button" onclick="window.location.href = window.location.pathname + '?hash={{ media.hash }}'" value="Done"/>
+          <input type="button" onclick="window.location.href = window.location.pathname + '?hash={{ media.hash }}&set={{ set }}'" value="Done"/>
         {% else %}
         <form>
-          <input type="button" onclick="window.location.href = window.location.pathname + '?hash={{ media.hash }}&edit=true'" value="Edit"/>
+          <input type="button" onclick="window.location.href = window.location.pathname + '?hash={{ media.hash }}&edit=true&set={{ set }}'" value="Edit"/>
         {% endif %}
         </form>
       </div>
