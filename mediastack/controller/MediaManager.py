@@ -6,6 +6,7 @@ from mediastack.model.Album import Album
 from mediastack.model.Tag import Tag
 from mediastack.utility.MediaIO import MediaIO
 from mediastack.utility.MediaInitializer import MediaInitializer
+from mediastack.utility.InputSanitizer import sanitize_input
 from mediastack.controller.SearchManager import SearchManager
 from mediastack.controller.MediaSet import MediaSet
 
@@ -41,6 +42,7 @@ class MediaManager:
     def add_tag(self, media: Media, tag_name: str):
         if media is None or tag_name is None or len(tag_name) == 0:
             return
+        tag_name = sanitize_input(tag_name)
         tag = self.find_tag(tag_name)
         media.tags.append(tag)
         self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
@@ -49,6 +51,7 @@ class MediaManager:
     def remove_tag(self, media: Media, tag_name: str):
         if media is None or tag_name is None or len(tag_name) == 0:
             return
+        tag_name = sanitize_input(tag_name)
         tag = self.find_tag(tag_name)
         if tag in media.tags:
             media.tags.remove(tag)
