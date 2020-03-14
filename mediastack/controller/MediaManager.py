@@ -72,7 +72,11 @@ class MediaManager:
         if media is None or new_score is None or len(new_score) == 0:
             return
         try:
-            media.score = int(new_score)
+            if media.album_name is not None and media.album.cover == media:
+                for album_media in media.album.media:
+                    album_media.score = int(new_score)
+            else:
+                media.score = int(new_score)
             self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
             self._session.commit()
         except:
