@@ -13,29 +13,26 @@ media_manager = MediaManager()
 def index():
     return render_template('index.html')
 
-@flask.route('/all', methods=['GET', 'POST'])
-def all_media_page():
+@flask.route('/mediapage', methods=['GET', 'POST'])
+def media_page():
     if request.args.get('hash') is not None:
         media = media_manager.find_media(request.args.get('hash'))
         if request.method == 'POST':
             _handle_post_request(media, request.form)
-        return render_template('media.html', media=media, edit=(request.args.get('edit') is not None))
-    search = request.args.get('search')
-    if search is not None:
-        search = search.split(' ')
-    return render_template('thumbnails.html', media_list=media_manager.search(MediaSet.ALL, search))
+        return render_template('media.html', 
+            media=media, 
+            edit=(request.args.get('edit') is not None), 
+            set=media_manager.find_media_set(request.args.get('set')).value)
 
-@flask.route('/general', methods=['GET', 'POST'])
-def general_media_page():
-    if request.args.get('hash') is not None:
-        media = media_manager.find_media(request.args.get('hash'))
-        if request.method == 'POST':
-            _handle_post_request(media, request.form)
-        return render_template('media.html', media=media, edit=(request.args.get('edit') is not None))
+@flask.route('/searchpage', methods=['GET'])
+def search_page():
+    media_set = request.args.get('set')
     search = request.args.get('search')
     if search is not None:
         search = search.split(' ')
-    return render_template('thumbnails.html', media_list=media_manager.search(MediaSet.GENERAL, search))
+    return render_template('thumbnails.html', 
+    media_list=media_manager.search(media_set, search), 
+    set=media_manager.find_media_set(request.args.get('set')).value)
 
 @flask.route('/thumbs/<string:hash>', methods=['GET'])
 def thumbnail_file(hash):
@@ -58,6 +55,7 @@ def _handle_post_request(media, forms_data):
         media_manager.remove_tag(media, next(forms_data.keys()))
 
 def main():
+    #flask.run(host='192.168.42.31')
     flask.run()
 
 if __name__ == '__main__':

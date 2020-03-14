@@ -75,7 +75,15 @@ class MediaManager:
         except:
             print("Error occured when changing score of " + media.path)
 
-    def search(self, media_set: MediaSet, criteria: List[str] = []) -> List[Media]:
-        search_result = self._search_manager.search(self._session, media_set, criteria)
+    def search(self, media_set: str, criteria: List[str] = []) -> List[Media]:
+        search_result = self._search_manager.search(self._session, self.find_media_set(media_set), criteria)
         search_result.sort()
         return search_result
+
+    def find_media_set(self, set_string: str) -> MediaSet:
+        if set_string is None:
+            return MediaSet.GENERAL
+        media_set = MediaSet(set_string.lower())
+        if media_set is None:
+            return MediaSet.GENERAL
+        return media_set

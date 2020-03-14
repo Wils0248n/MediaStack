@@ -9,7 +9,7 @@
   </div>
   <div id="thumbnails">
   {% for media in media_list %}
-      <a href="?hash={{ media.hash }}">
+      <a href="/mediapage?hash={{ media.hash }}&set={{ set }}">
         <img class="thumbnail media_thumbnail" src="thumbs/{{ media.hash }}"/>
       </a>
   {% endfor %}
