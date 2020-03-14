@@ -49,7 +49,7 @@ class MediaInitializer:
                 if media is not None:
                     self._session.add(media)
                     #media_in_session.append(media_hash)
-            elif os.path.isfile(media.path): #or media_hash in media_in_session:
+            elif media.path != None and os.path.isfile(media.path): #or media_hash in media_in_session:
                 print("WARNING DUPLICATE FILE: " + media_file_path)
                 continue
             else:
