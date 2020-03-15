@@ -44,8 +44,13 @@ class MediaManager:
             return
         tag_name = sanitize_input(tag_name)
         tag = self.find_tag(tag_name)
-        media.tags.append(tag)
-        self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
+        if media.album is not None and media.album.cover == media:
+            for media in media.album.media:
+                media.tags.append(tag)
+                self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
+        else:
+            media.tags.append(tag)
+            self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
         self._session.commit()
 
     def remove_tag(self, media: Media, tag_name: str):
