@@ -13,7 +13,7 @@ from mediastack.controller.MediaSet import MediaSet
 class MediaManager:
 
     def __init__(self):
-        self._engine = sa.create_engine('sqlite:///test.db', connect_args={'check_same_thread': False})
+        self._engine = sa.create_engine('sqlite:///MediaStack.db', connect_args={'check_same_thread': False})
         Base.metadata.create_all(bind=self._engine)
         self._session_maker = sa.orm.sessionmaker(bind=self._engine)
         self._session = self._session_maker()
