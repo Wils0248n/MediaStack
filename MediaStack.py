@@ -55,8 +55,7 @@ def _handle_post_request(media, forms_data):
         media_manager.remove_tag(media, next(forms_data.keys()))
 
 def main():
-    #flask.run(host='192.168.42.31')
-    flask.run()
+    flask.run(host="0.0.0.0")
 
 if __name__ == '__main__':
     main()

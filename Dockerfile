@@ -1,6 +1,9 @@
 FROM python:latest
-WORKDIR /app
-RUN pip install html-writer iptcinfo3 Pillow filetype
 RUN apt-get update
 RUN apt-get install -y ffmpeg
+ADD . /app
+WORKDIR /app
+RUN python3 -m venv .venv
+RUN . .venv/bin/activate
+RUN pip install -r requirements.txt
 CMD ["sh", "-c", "python3 MediaStack.py"] 
