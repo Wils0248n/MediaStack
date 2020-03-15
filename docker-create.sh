@@ -1,4 +1,4 @@
-docker build -t mediastack-image .
+docker build -t mediastack_image .
 docker create \
   --name=mediastack \
   -e PUID=1000 \
