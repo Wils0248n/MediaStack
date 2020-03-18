@@ -44,8 +44,13 @@ class MediaManager:
             return
         tag_name = sanitize_input(tag_name)
         tag = self.find_tag(tag_name)
-        if media.album is not None and media.album.cover == media:
-            for media in media.album.media:
+        if media.album_name is not None:
+            media.album.tags.append(tag)
+            if media.album.cover == media:
+                for media in media.album.media:
+                    media.tags.append(tag)
+                    self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
+            else:
                 media.tags.append(tag)
                 self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
         else:
@@ -60,6 +65,8 @@ class MediaManager:
         tag = self.find_tag(tag_name)
         if tag in media.tags:
             media.tags.remove(tag)
+        if media.album_name is not None and tag not in media.album.media_tags:
+            media.album.tags.remove(tag)
         self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
         self._session.commit()
 
@@ -80,9 +87,10 @@ class MediaManager:
             if media.album_name is not None and media.album.cover == media:
                 for album_media in media.album.media:
                     album_media.score = int(new_score)
+                    self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
             else:
                 media.score = int(new_score)
-            self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
+                self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
             self._session.commit()
         except:
             print("Error occured when changing score of " + media.path)
@@ -99,3 +107,4 @@ class MediaManager:
         if media_set is None:
             return MediaSet.GENERAL
         return media_set
+    

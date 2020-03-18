@@ -25,6 +25,16 @@ class Album(Base):
 
     tags = sa.orm.relationship("Tag", secondary=AlbumTag, back_populates="albums")
 
+    def _media_tags(self):
+        tags = []
+        for media in self.media:
+            for tag in media.tags:
+                if tag not in tags:
+                    tags.append(tag)
+        return tags
+
+    media_tags = property(_media_tags)
+
     def __init__(self, name: str) -> None:
         self.name = name
 
