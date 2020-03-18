@@ -77,7 +77,7 @@ class SearchManager:
                 try:
                     score = int(query_query)
                 except:
-                    continue
+                    self._media_list = []
                 self._media_list = [media for media in self._media_list if media.score == score]
 
     def _filter_media_by_tag_queries(self, tag_queries: List[str]):
@@ -95,13 +95,13 @@ class SearchManager:
         for tag_name in whitelist_tags:
             current_tag = self._session.query(Tag).get(tag_name)
             if current_tag is None:
-                continue
+                self._media_list = []
             self._media_list = [media for media in self._media_list if current_tag in media.tags]
 
         for tag_name in blacklist_tags:
             current_tag = self._session.query(Tag).get(tag_name)
             if current_tag is None:
-                continue
+                self._media_list = []
             self._media_list = [media for media in self._media_list if current_tag not in media.tags]
 
     def _filter_albums(self, special_queries, tag_queries):
@@ -132,7 +132,7 @@ class SearchManager:
                 try:
                     score = int(query_query)
                 except:
-                    continue
+                    self._album_list = []
                 self._album_list = [album for album in self._album_list if album.cover.score == score]
             
     def _filter_albums_by_tag_queries(self, tag_queries: List[str]):
@@ -150,12 +150,12 @@ class SearchManager:
         for tag_name in whitelist_tags:
             current_tag = self._session.query(Tag).get(tag_name)
             if current_tag is None:
-                continue
+                self._album_list = []
             self._album_list = [album for album in self._album_list if current_tag in album.tags]
 
         for tag_name in blacklist_tags:
             current_tag = self._session.query(Tag).get(tag_name)
             if current_tag is None:
-                continue
+                self._album_list = []
             self._album_list = [album for album in self._album_list if current_tag not in album.tags]
     
