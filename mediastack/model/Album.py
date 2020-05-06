@@ -14,6 +14,8 @@ class Album(Base):
 
     def _get_cover(self):
         self.media.sort()
+        if len(self.media) == 0:
+            return None
         return self.media[0]
 
     cover = property(_get_cover)

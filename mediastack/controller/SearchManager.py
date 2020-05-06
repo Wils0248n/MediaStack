@@ -23,7 +23,7 @@ class SearchManager:
         if media_set == MediaSet.GENERAL:
             self._media_list = list(self._session.query(Media).filter(Media.album == None, Media.path != None))
             self._album_list = list(self._session.query(Album).filter(Album.cover != None))
-            self._album_list = [album for album in self._album_list if album.cover.path != None]
+            self._album_list = [album for album in self._album_list if album.cover != None and album.cover.path != None]
         elif media_set == MediaSet.ALL:
             self._media_list = list(self._session.query(Media).filter(Media.path != None))
             self._album_list = []
