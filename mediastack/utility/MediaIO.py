@@ -8,16 +8,11 @@ logging.getLogger('iptcinfo').setLevel(logging.ERROR)
 
 class MediaIO:
 
-    def __init__(self, read_metadata: bool = True, write_metadata: bool = False, strip_metadata: bool = False):
-        self._read_metadata = read_metadata
-        self._write_metadata = write_metadata
-        self._strip_metadata = strip_metadata
-
-    def initialize_media_file(self, media_path: str) -> Dict:
+    def extract_metadata_from_media_file(self, media_path: str) -> Dict:
         if media_path is None or not os.path.isfile(media_path):
             return None
 
-        media_metadata = {}
+        media_metadata = {"score":0, "tags":[], "source":None}
 
         media_metadata["type"] = self._determine_media_type(media_path)
 
@@ -33,18 +28,12 @@ class MediaIO:
         media_metadata["album"] = path_split[3].lower() if 3 < len(path_split) \
             and os.path.isdir(os.sep.join([path_split[0], path_split[1], path_split[2], path_split[3]])) else None
 
-        if not self._read_metadata:
-            return media_metadata
+        if media_metadata["type"] == "image":
+            iptc_info = IPTCInfo(media_path)
 
-        iptc_info = IPTCInfo(media_path)
-
-        media_metadata["type"] = self._determine_media_type(media_path)
-        media_metadata["tags"] = self._extract_keywords(iptc_info)
-        media_metadata["source"] = self._extract_source(iptc_info)
-        media_metadata["score"] = self._extract_score(iptc_info)
-
-        if self._strip_metadata and media_metadata["type"] == "image":
-            self.stripMetadata(media_path)
+            media_metadata["tags"] = self._extract_keywords(iptc_info)
+            media_metadata["source"] = self._extract_source(iptc_info)
+            media_metadata["score"] = self._extract_score(iptc_info)
 
         media_metadata["hash"] = MediaIO.hash_file(media_path)
         
@@ -86,9 +75,7 @@ class MediaIO:
             return score
         return 0
 
-    def stripMetadata(self, media_path: str):
-        if not self._strip_metadata:
-            return
+    def strip_metadata(self, media_path: str):
         image = Image.open(media_path)
 
         data = list(image.getdata())
@@ -97,24 +84,20 @@ class MediaIO:
 
         image_without_exif.save(media_path, format=image.format)
 
-    def writeIPTCInfoToImage(self, media, thumbnail_directory: str):
-        if not self._write_metadata:
+    def write_iptc_info_to_media(self, media):
+        if media is None or media.path is None or media.hash is None:
             return
-        previous_hash = media.hash
-        try:
-            info = IPTCInfo(media.path)
-            if (media.source is not None):
-                info['source'] = media.source
-            if (media.tags is not None and len(media.tags) > 0):
-                info['keywords'] = [tag.name.encode() for tag in media.tags]
-            if (media.score is not None):
-                info['urgency'] = str(media.score)
-            info.save()
-            media.hash = hash_file(media.path)
-            os.rename(thumbnail_directory + previous_hash, thumbnail_directory + media.hash)
-            os.remove(media.path + '~')
-        except AttributeError:
-            print("Error writing metadata to " + media.path)
+
+        info = IPTCInfo(media.path)
+        if (media.source is not None):
+            info['source'] = media.source
+        if (media.tags is not None and len(media.tags) > 0):
+            info['keywords'] = [tag.name.encode() for tag in media.tags]
+        if (media.score is not None):
+            info['urgency'] = str(media.score)
+        info.save()
+        media.hash = self.hash_file(media.path)
+        os.remove(media.path + '~')
 
     @staticmethod
     def hash_file(file_path: str) -> str:
@@ -126,6 +109,8 @@ class MediaIO:
 
     @staticmethod
     def scan_directory(directory_path: str) -> List[str]:
+        if not (os.path.isdir(directory_path)):
+            raise FileNotFoundError
         media_file_paths = []
         for currentDirectory, directories, files in os.walk(directory_path):
             for file in files:

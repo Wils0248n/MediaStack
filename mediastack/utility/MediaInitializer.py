@@ -11,9 +11,9 @@ from mediastack.utility.MediaIO import MediaIO
 from mediastack.utility.InputSanitizer import sanitize_input
 
 class MediaInitializer:
-    def __init__(self, session: sa.orm.Session, mediaio: MediaIO):
-        self.media_directory = "media/"
-        self.thumbnail_directory = "thumbs/"
+    def __init__(self, session: sa.orm.Session, mediaio: MediaIO, media_dir: str = "media/", thumbnail_dir: str = "thumbs/"):
+        self.media_directory = media_dir
+        self.thumbnail_directory = thumbnail_dir
         self._mediaio = mediaio
         self._thumbnailer = Thumbnailer(self.thumbnail_directory)
         self._session = session
@@ -60,7 +60,7 @@ class MediaInitializer:
                     media.album.media.remove(media)
                 if media.category_name is not None:
                     media.category.media.remove(media)
-                self._initialize_media_references(media, self._mediaio.initialize_media_file(media_file_path))
+                self._initialize_media_references(media, self._mediaio.extract_metadata_from_media_file(media_file_path))
 
     def _find_new_media(self, media_paths: List[str]):
         new_media = []
@@ -70,7 +70,7 @@ class MediaInitializer:
         return new_media
 
     def _initialize_media(self, media_path: str) -> Media:
-        media_metadata = self._mediaio.initialize_media_file(media_path)
+        media_metadata = self._mediaio.extract_metadata_from_media_file(media_path)
 
         if media_metadata is None:
             print("Couldn't initialize: " + media_path)

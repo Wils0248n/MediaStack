@@ -1,3 +1,4 @@
+import os
 import sqlalchemy as sa
 from typing import List
 from mediastack.model.Base import Base
@@ -49,13 +50,13 @@ class MediaManager:
             if media.album.cover == media:
                 for media in media.album.media:
                     media.tags.append(tag)
-                    self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
+                    self._write_media_changes(media)
             else:
                 media.tags.append(tag)
-                self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
+                self._write_media_changes(media)
         else:
             media.tags.append(tag)
-            self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
+            self._write_media_changes(media)
         self._session.commit()
 
     def remove_tag(self, media: Media, tag_name: str):
@@ -67,7 +68,7 @@ class MediaManager:
             media.tags.remove(tag)
         if media.album_name is not None and tag not in media.album.media_tags:
             media.album.tags.remove(tag)
-        self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
+        self._write_media_changes(media)
         self._session.commit()
 
     def change_source(self, media: Media, new_source: str):
@@ -75,7 +76,7 @@ class MediaManager:
             return
         try:
             media.source = new_source
-            self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
+            self._write_media_changes(media)
             self._session.commit()
         except:
             print("Error occured when changing source of " + media.path)
@@ -87,10 +88,10 @@ class MediaManager:
             if media.album_name is not None and media.album.cover == media:
                 for album_media in media.album.media:
                     album_media.score = int(new_score)
-                    self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
+                    self._write_media_changes(media)
             else:
                 media.score = int(new_score)
-                self._mediaio.writeIPTCInfoToImage(media, "thumbs/")
+                self._write_media_changes(media)
             self._session.commit()
         except:
             print("Error occured when changing score of " + media.path)
@@ -108,3 +109,10 @@ class MediaManager:
             return MediaSet.GENERAL
         return media_set
     
+    def _write_media_changes(self, media: Media) -> None:
+        try:
+            old_hash = media.hash
+            self._mediaio.write_iptc_info_to_media(media)
+            os.rename("thumbs/" + old_hash, "thumbs/" + media.hash)
+        except AttributeError:
+            print("Error writing changes to " + media.path)
