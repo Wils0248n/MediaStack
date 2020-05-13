@@ -44,6 +44,6 @@ class Thumbnailer:
         output_path = self.__thumbnail_directory + media_video.hash
         size = str(self.__height) + "x" + str(self.__width)
         FNULL = open(os.devnull, 'w')
-        subprocess.call(['ffmpeg', '-i', media_video.path, '-ss', '00:00:01.000',
+        return_code = subprocess.call(['ffmpeg', '-i', media_video.path, '-ss', '00:00:01.000',
             '-vframes', '1', '-s', size, '-f', 'image2', output_path], stdout=FNULL, stderr=subprocess.STDOUT)
-        return True
+        return return_code == 0
