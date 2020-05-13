@@ -22,10 +22,10 @@ class Media(Base):
     
     tags = sa.orm.relationship("Tag", secondary=MediaTag, back_populates="media")
 
-    def _get_album(self) -> Album:
+    def get_album(self) -> Album:
         return sa.orm.Session.object_session(self).query(Album).filter(Album.name == self.album_name).first()
 
-    def _get_album_index(self) -> int:
+    def get_album_index(self) -> int:
         album = self._get_album()
         if album is None:
             return 0
@@ -33,9 +33,7 @@ class Media(Base):
         album_media.sort()
         return album_media.index(self)
 
-    album_index = property(_get_album_index)
-
-    def _get_next_media(self):
+    def get_next_media(self):
         if self.album_name is None:
             return self
         else:
@@ -47,9 +45,7 @@ class Media(Base):
             else:
                 return album_media[current_index + 1]
 
-    next_media = property(_get_next_media)
-
-    def _get_previous_media(self):
+    def get_previous_media(self):
         if self.album_name is None:
             return self
         else:
@@ -60,8 +56,6 @@ class Media(Base):
                 return album_media[len(album_media) - 1]
             else:
                 return album_media[current_index - 1]
-
-    previous_media = property(_get_previous_media)
 
     def __hash__(self):
         return hash(self.hash)

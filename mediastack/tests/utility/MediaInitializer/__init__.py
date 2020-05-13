@@ -1,0 +1,1 @@
+from mediastack.tests.utility.MediaInitializer import *
