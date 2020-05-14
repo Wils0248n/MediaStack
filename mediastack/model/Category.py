@@ -8,10 +8,9 @@ class Category(Base):
     media = sa.orm.relationship('Media', backref='category', lazy='select')
 
     def __init__(self, name: str):
+        if name is None or len(name) == 0:
+            raise ValueError("Invalid artist name.")
         self.name = name
-
-    def __repr__(self):
-        return self.name
 
     def __eq__(self, other):
         return self.name == other

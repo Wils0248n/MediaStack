@@ -8,8 +8,8 @@ class TestAlbumConstructor(unittest.TestCase):
 
     def test_name_is_none(self):
         with self.assertRaises(ValueError):
-            album = Album(None)
+            Album(None)
 
     def test_empty_name(self):
         with self.assertRaises(ValueError):
-            album = Album("")
+            Album("")
