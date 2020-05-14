@@ -1,0 +1,1 @@
+from mediastack.tests.model.Artist import *

@@ -22,59 +22,18 @@ class Media(Base):
     
     tags = sa.orm.relationship("Tag", secondary=MediaTag, back_populates="media")
 
-    def get_album(self) -> Album:
-        return sa.orm.Session.object_session(self).query(Album).filter(Album.name == self.album_name).first()
-
-    def get_album_index(self) -> int:
-        album = self._get_album()
-        if album is None:
-            return 0
-        album_media = album.media
-        album_media.sort()
-        return album_media.index(self)
-
-    def get_next_media(self):
-        if self.album_name is None:
-            return self
-        else:
-            album_media = self._get_album().media
-            album_media.sort()
-            current_index = album_media.index(self)
-            if current_index == len(album_media) - 1:
-                return album_media[0]
-            else:
-                return album_media[current_index + 1]
-
-    def get_previous_media(self):
-        if self.album_name is None:
-            return self
-        else:
-            album_media = self._get_album().media
-            album_media.sort()
-            current_index = album_media.index(self)
-            if current_index == 0:
-                return album_media[len(album_media) - 1]
-            else:
-                return album_media[current_index - 1]
-
     def __hash__(self):
         return hash(self.hash)
 
     def __lt__(self, other):
         if other is None:
             return False
-        if self.category == other.category or self.category is None or other.category is None:
-            return self.path < other.path
-        else:
-            return self.category.name < other.category.name
+        return self.path < other.path
 
     def __gt__(self, other):
         if other is None:
-            return False
-        if self.category == other.category or self.category is None or other.category is None:
-            return self.path > other.path
-        else:
-            return self.category.name > other.category.name
+            return True
+        return self.path > other.path
 
     def __eq__(self, other):
         if other is None:
