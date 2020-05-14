@@ -15,4 +15,3 @@ class TestAlbumEqualTo(unittest.TestCase):
         album = Album("album")
         self.assertFalse(album == None)
     
-    
