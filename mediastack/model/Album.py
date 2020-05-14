@@ -13,16 +13,15 @@ class Album(Base):
     media = sa.orm.relationship('Media', backref='album', lazy='select')
     tags = sa.orm.relationship("Tag", secondary=AlbumTag, back_populates="albums")
 
-    def get_cover(self):
+    def _cover(self):
         if len(self.media) == 0:
             return None
         self.media.sort()
         return self.media[0]
 
-    def get_media_count(self) -> int:
-        return len(self.media)
+    cover = property(_cover)
 
-    def media_tags(self):
+    def get_media_tags(self):
         tags = []
         for media in self.media:
             for tag in media.tags:
@@ -31,10 +30,11 @@ class Album(Base):
         return tags
 
     def __init__(self, name: str) -> None:
+        if name is None or len(name) == 0:
+            raise ValueError("Invalid album name.")
         self.name = name
 
-    def __repr__(self):
-        return self.name
-
     def __eq__(self, other):
-        return self.name == other
+        if other is None:
+            return False
+        return self.name == other.name

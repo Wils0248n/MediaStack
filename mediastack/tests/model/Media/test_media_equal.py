@@ -27,4 +27,5 @@ class TestMediaEqualTo(unittest.TestCase):
         media.path = "1"
 
         other = Media()
-        self.assertFalse(media == None)
+        self.assertFalse(media == other)
+    
