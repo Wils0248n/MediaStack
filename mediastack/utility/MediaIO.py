@@ -1,4 +1,4 @@
-import os, hashlib, filetype, logging
+import os, hashlib, filetype, logging, copy
 from typing import List, Dict
 from iptcinfo3 import IPTCInfo
 from PIL import Image
@@ -89,14 +89,14 @@ class MediaIO:
             return
 
         info = IPTCInfo(media.path)
-        if (media.source is not None):
+        if media.source is not None:
             info['source'] = media.source
-        if (media.tags is not None and len(media.tags) > 0):
-            info['keywords'] = [tag.name.encode() for tag in media.tags]
-        if (media.score is not None):
+        if media.tags is not None and len(media.tags) > 0:
+            tags = [tag.name for tag in media.tags]
+            info['keywords'] = [tag_name.encode() for tag_name in tags]
+        if media.score is not None:
             info['urgency'] = str(media.score)
         info.save()
-        media.hash = self.hash_file(media.path)
         os.remove(media.path + '~')
 
     @staticmethod

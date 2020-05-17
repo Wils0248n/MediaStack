@@ -96,7 +96,7 @@ class MediaInitializer:
             media.tags.append(current_tag)
             if media.album is not None and current_tag not in media.album.tags:
                 media.album.tags.append(current_tag)
-
+            
         return media
 
     def _initialize_media_references(self, media: Media, media_metadata: Dict):

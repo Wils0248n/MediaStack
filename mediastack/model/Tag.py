@@ -16,5 +16,7 @@ class Tag(Base):
         self.name = name
 
     def __eq__(self, other):
-        return self.name == other
+        if other is None:
+            return False
+        return self.name == other.name
     
