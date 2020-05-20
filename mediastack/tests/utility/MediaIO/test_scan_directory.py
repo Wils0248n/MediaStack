@@ -1,7 +1,7 @@
 import unittest, os
 from mediastack.utility.MediaIO import MediaIO
 
-class TestScanDirectory(unittest.TestCase):
+class TestMediaIOScanDirectory(unittest.TestCase):
 
     def create_test_file(self, file_path: str):
         some_file = open(file_path, "w")

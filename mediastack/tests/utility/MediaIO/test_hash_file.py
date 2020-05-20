@@ -1,7 +1,7 @@
 import unittest, os
 from mediastack.utility.MediaIO import MediaIO
 
-class TestHashFile(unittest.TestCase):
+class TestMediaIOHashFile(unittest.TestCase):
 
     def test_hash_file(self):
         self.assertEqual("2550bc86af322d4e84e3c6a6480f8d4f", MediaIO.hash_file("mediastack/tests/media/input/input_artist/cat_album/image_1.jpg"))

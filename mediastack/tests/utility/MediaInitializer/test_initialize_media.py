@@ -7,9 +7,9 @@ from mediastack.model.Album import Album
 from mediastack.model.Artist import Artist
 from mediastack.model.Category import Category
 from mediastack.utility.MediaIO import MediaIO
-from mediastack.utility.MediaInitializer import MediaInitializer
+from mediastack.controller.MediaInitializer import MediaInitializer
 
-class TestInitializeMedia(unittest.TestCase):
+class TestMediaInitializerInitializeMedia(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         self._previous_cwd = os.getcwd()

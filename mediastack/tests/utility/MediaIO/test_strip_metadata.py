@@ -2,7 +2,7 @@ import unittest, os
 from shutil import copyfile
 from mediastack.utility.MediaIO import MediaIO
 
-class TestStripMetadata(unittest.TestCase):
+class TestMediaIOStripMetadata(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         self._previous_cwd = os.getcwd()

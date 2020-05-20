@@ -1,21 +1,28 @@
 import os, copy
 import sqlalchemy as sa
 from typing import List
-from mediastack.model.Base import Base
-from mediastack.model.Media import Media
-from mediastack.model.Album import Album
-from mediastack.model.Tag import Tag
+from mediastack.model import *
 from mediastack.utility.MediaIO import MediaIO
-from mediastack.utility.MediaInitializer import MediaInitializer
-from mediastack.utility.InputSanitizer import sanitize_input
 
 class MediaManager:
 
     def __init__(self, session: sa.orm.Session):
         self._session = session
 
-        self._media_initializer = MediaInitializer(self._session, MediaIO())
-        self._media_initializer.initialize_media_from_disk();
+    def get_media(self) -> List[Media]:
+        return list(self._session.query(Media))
+
+    def get_albums(self) -> List[Album]:
+        return list(self._session.query(Album))
+
+    def get_tags(self) -> List[Tag]:
+        return list(self._session.query(Tag))
+
+    def get_artists(self) -> List[Artist]:
+        return list(self._session.query(Artist))
+
+    def get_categories(self) -> List[Category]:
+        return list(self._session.query(Category))
 
     def find_media(self, media_hash: str) -> Media:
         if media_hash is None:
@@ -26,6 +33,21 @@ class MediaManager:
         if tag_name is None:
             return None;
         return self._session.query(Tag).get(tag_name)
+
+    def find_album(self, album_name: str) -> Album:
+        if album_name is None:
+            return None
+        return self._session.query(Album).get(album_name)
+
+    def find_artist(self, artist_name: str) -> Artist:
+        if artist_name is None:
+            return None
+        return self._session.query(Artist).get(artist_name)
+
+    def find_category(self, category_name: str) -> Category:
+        if category_name is None:
+            return None
+        return self._session.query(Category).get(category_name)
 
     def create_tag(self, tag_name: str) -> Tag:
         if self.find_tag(tag_name) is not None:
@@ -39,25 +61,21 @@ class MediaManager:
             return None
 
         media.tags.append(tag)
-
-        if media.album is not None and tag in media.album.get_media_tags():
-            media.album.tags.append(tag)
         
-        self._write_media_changes(media)
-
+        self._update_tags_on_disk(media)
         self._session.commit()
-
         return tag
 
     def remove_tag(self, media: Media, tag: Tag) -> Tag:
-        if media is None or tag is None:
+        if media is None or tag is None or tag not in media.tags:
             return None
         
         if tag in media.tags:
             media.tags.remove(tag)
-        if media.album is not None and tag not in media.album.get_media_tags():
-            media.album.tags.remove(tag)
-        self._write_media_changes(media)
+        else:
+            return None
+
+        self._update_tags_on_disk(media)
         self._session.commit()
         return tag
 
@@ -66,48 +84,62 @@ class MediaManager:
             return None
         
         media.source = new_source
-        self._write_media_changes(media)
+        self._update_source_on_disk(media)
         self._session.commit()
         return new_source
 
     def change_score(self, media: Media, new_score: str) -> int:
         if media is None or new_score is None:
             return None
+        
         try:
             new_score = int(new_score)
         except:
-            raise ValueError("Invalid score.")
+            return None
 
         if media.album_name is not None and media.album.cover == media:
             for album_media in media.album.media:
                 album_media.score = new_score
-                self._write_media_changes(media)
+                self._update_score_on_disk(media)
         else:
             media.score = new_score
-            self._write_media_changes(media)
+            self._update_score_on_disk(media)
         self._session.commit()
         return new_score
-
-#    def search(self, media_set: str, criteria: List[str] = []) -> List[Media]:
-#        search_result = self._search_manager.search(self._session, self.find_media_set(media_set), criteria)
-#        search_result.sort()
-#        return search_result
-
-#    def find_media_set(self, set_string: str) -> MediaSet:
-#        if set_string is None:
-#            return MediaSet.GENERAL
-#        media_set = MediaSet(set_string.lower())
-#        if media_set is None:
-#            return MediaSet.GENERAL
-#        return media_set
     
-    def _write_media_changes(self, media: Media) -> None:
-        #try:
+    def get_next_media_in_album(self, media: Media) -> Media:
+        if media.album is None:
+            return None
+        current_index = media.album.media.index(media)
+        if current_index == len(media.album.media) - 1:
+            return media.album.media[0]
+        return media.album.media[current_index + 1]
+
+    def get_previous_media_in_album(self, media: Media) -> Media:
+        if media.album is None:
+            return None
+        current_index = media.album.media.index(media)
+        if current_index == 0:
+            return media.album.media[len(media.album.media) - 1]
+        return media.album.media[current_index - 1]
+
+    def _update_score_on_disk(self, media: Media) -> None:
         old_hash = copy.copy(media.hash)
-        MediaIO().write_iptc_info_to_media(media)
+        MediaIO().write_score_to_file(media.path, media.score)
         media.hash = MediaIO().hash_file(media.path)
         self._session.refresh(media)
         os.rename("thumbs/" + old_hash, "thumbs/" + media.hash)
-        #except AttributeError:
-            #print("Error writing changes to " + media.path)
     
+    def _update_source_on_disk(self, media: Media) -> None:
+        old_hash = copy.copy(media.hash)
+        MediaIO().write_score_to_file(media.path, media.source)
+        media.hash = MediaIO().hash_file(media.path)
+        self._session.refresh(media)
+        os.rename("thumbs/" + old_hash, "thumbs/" + media.hash)
+
+    def _update_tags_on_disk(self, media: Media) -> None:
+        old_hash = copy.copy(media.hash)
+        MediaIO().write_tags_to_file(media.path, [tag.name for tag in media.tags])
+        media.hash = MediaIO().hash_file(media.path)
+        self._session.refresh(media)
+        os.rename("thumbs/" + old_hash, "thumbs/" + media.hash)

@@ -1,8 +1,7 @@
-import os, hashlib, filetype, logging, copy
+import os, hashlib, filetype, logging
 from typing import List, Dict
 from iptcinfo3 import IPTCInfo
 from PIL import Image
-from mediastack.utility.InputSanitizer import sanitize_input
 
 logging.getLogger('iptcinfo').setLevel(logging.ERROR)
 
@@ -14,7 +13,7 @@ class MediaIO:
 
         media_metadata = {"score":0, "tags":[], "source":None}
 
-        media_metadata["type"] = self._determine_media_type(media_path)
+        media_metadata["type"] = self.determine_media_type(media_path)
 
         if media_metadata["type"] is None:
             return None
@@ -31,7 +30,7 @@ class MediaIO:
         if media_metadata["type"] == "image":
             iptc_info = IPTCInfo(media_path)
 
-            media_metadata["tags"] = self._extract_keywords(iptc_info)
+            media_metadata["tags"] = self._extract_tags(iptc_info)
             media_metadata["source"] = self._extract_source(iptc_info)
             media_metadata["score"] = self._extract_score(iptc_info)
 
@@ -39,7 +38,7 @@ class MediaIO:
         
         return media_metadata
 
-    def _determine_media_type(self, media_path: str) -> str:
+    def determine_media_type(self, media_path: str) -> str:
         file_type = filetype.guess(media_path)
         if file_type is not None:
             file_type = file_type.extension
@@ -51,10 +50,10 @@ class MediaIO:
                 return "video"
         return None
 
-    def _extract_keywords(self, iptc_info: IPTCInfo) -> List[str]:
+    def _extract_tags(self, iptc_info: IPTCInfo) -> List[str]:
         keywords = []
         for keyword in iptc_info['keywords']:
-            keywords.append(sanitize_input(keyword.decode("utf-8")))
+            keywords.append(keyword.decode("utf-8").replace(" ", "_"))
         return keywords
 
     def _extract_source(self, iptc_info: IPTCInfo) -> str:
@@ -71,7 +70,10 @@ class MediaIO:
     def _extract_score(self, iptc_info: IPTCInfo) -> int:
         score = iptc_info['urgency']
         if score is not None:
-            score = int(score.decode("utf-8"))
+            try:
+                score = int(score.decode("utf-8"))
+            except:
+                return 0
             return score
         return 0
 
@@ -84,20 +86,38 @@ class MediaIO:
 
         image_without_exif.save(media_path, format=image.format)
 
-    def write_iptc_info_to_media(self, media):
-        if media is None or media.path is None or media.hash is None:
-            return
-
-        info = IPTCInfo(media.path)
-        if media.source is not None:
-            info['source'] = media.source
-        if media.tags is not None and len(media.tags) > 0:
-            tags = [tag.name for tag in media.tags]
-            info['keywords'] = [tag_name.encode() for tag_name in tags]
-        if media.score is not None:
-            info['urgency'] = str(media.score)
+    def write_tags_to_file(self, media_path: str, tags: List[str]) -> str:
+        if media_path is None or tags is None or not os.path.isfile(media_path):
+            return None
+        info = IPTCInfo(media_path)
+        if info is None:
+            return None
+        info['keywords'] = [tag_name.encode() for tag_name in tags]
         info.save()
-        os.remove(media.path + '~')
+        os.remove(media_path + '~')
+        return self.hash_file(media_path)
+
+    def write_source_to_file(self, media_path: str, source: str) -> str:
+        if media_path is None or source is None or not os.path.isfile(media_path):
+            return None
+        info = IPTCInfo(media_path)
+        if info is None:
+            return None
+        info['source'] = source
+        info.save()
+        os.remove(media_path + '~')
+        return self.hash_file(media_path)
+
+    def write_score_to_file(self, media_path: str, score: int) -> str:
+        if media_path is None or score is None or not os.path.isfile(media_path):
+            return None
+        info = IPTCInfo(media_path)
+        if info is None:
+            return None
+        info['urgency'] = str(score)
+        info.save()
+        os.remove(media_path + '~')
+        return self.hash_file(media_path)
 
     @staticmethod
     def hash_file(file_path: str) -> str:

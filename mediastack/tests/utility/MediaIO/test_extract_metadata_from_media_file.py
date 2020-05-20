@@ -1,7 +1,7 @@
 import unittest, os
 from mediastack.utility.MediaIO import MediaIO
 
-class TestExtractMetadataFromMediaFile(unittest.TestCase):
+class TestMediaIOExtractMetadataFromMediaFile(unittest.TestCase):
     
     @classmethod
     def setUpClass(self):

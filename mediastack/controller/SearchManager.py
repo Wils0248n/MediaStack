@@ -7,17 +7,17 @@ from mediastack.controller.MediaSet import MediaSet
 
 class SearchManager:
 
-    def __init__(self):
-        self._session: sa.orm.Session = None
+    def __init__(self, session: sa.orm.Session):
+        self._session: sa.orm.Session = session
         self._media_list: List[Media] = []
         self._album_list: List[Album] = []
         self._criteria: List[str] = None
 
-    def search(self, session: sa.orm.Session, media_set: MediaSet, query_list: List[str]) -> List[Media]:
-        if session is None or media_set is None:
-            return None
+    def search(self, media_set: str, query_list: List[str]) -> List[Media]:
+        media_set = MediaSet(media_set.lower())
+        if media_set is None:
+            None
 
-        self._session = session
         self._criteria = query_list
 
         if media_set == MediaSet.GENERAL:
