@@ -9,7 +9,7 @@ class Category(Base):
 
     def __init__(self, name: str):
         if name is None or len(name) == 0:
-            raise ValueError("Invalid artist name.")
+            raise ValueError("Invalid category name.")
         self.name = name
 
     def __eq__(self, other):

@@ -24,7 +24,7 @@ class TestMediaManagerFindMedia(unittest.TestCase):
         shutil.copytree("media/input", self._media_directory + "input")
 
         os.chdir("media/output")
-        self._engine = sa.create_engine('sqlite://', connect_args={'check_same_thread': False})
+        self._engine = sa.create_engine('sqlite:///test.db', connect_args={'check_same_thread': False})
         Base.metadata.create_all(bind=self._engine)
         self._session_maker = sa.orm.sessionmaker(bind=self._engine)
         self._session = self._session_maker()
@@ -33,8 +33,8 @@ class TestMediaManagerFindMedia(unittest.TestCase):
     def tearDown(self):
         self._session.close()
         os.chdir("../..")
-        shutil.rmtree(self._media_directory)
-        shutil.rmtree(self._thumbnail_directory)
+        #shutil.rmtree(self._media_directory)
+        #shutil.rmtree(self._thumbnail_directory)
 
     def test_find_existing_media(self):
         media_manager = MediaManager(self._session)

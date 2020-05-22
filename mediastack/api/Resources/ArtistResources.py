@@ -23,3 +23,4 @@ class ArtistInfoResource(Resource):
             return Response(ResponseType.NOT_FOUND, message="Artist not found.").getResponse()
 
         return Response(ResponseType.OK, data={'artist':Serializer.serialize_artist(artist)}).getResponse()
+    

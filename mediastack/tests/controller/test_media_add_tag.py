@@ -50,7 +50,7 @@ class TestMediaManagerAddTag(unittest.TestCase):
         self.assertFalse(new_tag in media.tags)
         self.assertFalse(media in new_tag.media)
 
-        result = media_manager.add_tag(media, new_tag)
+        result = media_manager.add_tag_to_media(media, new_tag)
         self.assertEqual(new_tag, result)
 
         self.assertTrue(media in new_tag.media)
@@ -77,7 +77,7 @@ class TestMediaManagerAddTag(unittest.TestCase):
         self.assertFalse(new_tag in media.tags)
         self.assertFalse(media in new_tag.media)
 
-        result = media_manager.add_tag(media, new_tag)
+        result = media_manager.add_tag_to_media(media, new_tag)
         self.assertEqual(new_tag, result)
 
         self.assertTrue(media in new_tag.media)
@@ -107,7 +107,7 @@ class TestMediaManagerAddTag(unittest.TestCase):
         self.assertTrue(existing_tag in media.tags)
         self.assertTrue(media in existing_tag.media)
 
-        result = media_manager.add_tag(media, existing_tag)
+        result = media_manager.add_tag_to_media(media, existing_tag)
         self.assertIsNone(result)
 
         self.assertTrue(existing_tag in media.tags)
@@ -126,7 +126,7 @@ class TestMediaManagerAddTag(unittest.TestCase):
         self.assertIsNotNone(media)
         existing_tag = media_manager.find_tag("dog")
         self.assertIsNotNone(existing_tag)
-        self.assertIsNotNone(media_manager.add_tag(media, existing_tag))
+        self.assertIsNotNone(media_manager.add_tag_to_media(media, existing_tag))
 
         originalMediaTags = copy.deepcopy(media.tags)
         originalTagMedia = copy.deepcopy(existing_tag.media)
@@ -135,7 +135,7 @@ class TestMediaManagerAddTag(unittest.TestCase):
         self.assertTrue(existing_tag in media.tags)
         self.assertTrue(media in existing_tag.media)
 
-        result = media_manager.add_tag(media, existing_tag)
+        result = media_manager.add_tag_to_media(media, existing_tag)
         self.assertIsNone(result)
 
         self.assertTrue(existing_tag in media.tags)

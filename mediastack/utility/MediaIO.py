@@ -53,7 +53,7 @@ class MediaIO:
     def _extract_tags(self, iptc_info: IPTCInfo) -> List[str]:
         keywords = []
         for keyword in iptc_info['keywords']:
-            keywords.append(keyword.decode("utf-8").replace(" ", "_"))
+            keywords.append(keyword.decode("utf-8").replace(" ", "_").lower())
         return keywords
 
     def _extract_source(self, iptc_info: IPTCInfo) -> str:

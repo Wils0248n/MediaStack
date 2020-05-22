@@ -45,7 +45,7 @@ class AlbumMutateTagsResource(Resource):
             return Response(ResponseType.BAD_REQUEST, message="Album does not contain that tag.").getResponse()
 
         for media in album.media:
-            self._media_manager.remove_tag(media, tag)
+            self._media_manager.remove_tag_from_media(media, tag)
 
         return Response(ResponseType.OK).getResponse()
 
@@ -59,7 +59,7 @@ class AlbumMutateTagsResource(Resource):
             tag = self._media_manager.create_tag(tag_id)
         
         for media in album.media:
-            self._media_manager.add_tag(media, tag)
+            self._media_manager.add_tag_to_media(media, tag)
         
         return Response(ResponseType.CREATED).getResponse()
     
@@ -73,7 +73,7 @@ class AlbumMutateSourceResource(Resource):
             return Response(ResponseType.NOT_FOUND, message="Album not found.").getResponse()
         
         for media in album.media:
-            self._media_manager.change_source(media, source)
+            self._media_manager.change_media_source(media, source)
         
         return Response(ResponseType.OK).getResponse()
     
@@ -87,7 +87,7 @@ class AlbumMutateScoreResource(Resource):
             return Response(ResponseType.NOT_FOUND, message="Media not found.").getResponse()
         
         for media in album.media:
-            if self._media_manager.change_score(album, score) is None:
+            if self._media_manager.change_media_score(album, score) is None:
                 return Response(ResponseType.BAD_REQUEST, message="Invalid score.").getResponse()
         
         return Response(ResponseType.OK).getResponse()

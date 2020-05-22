@@ -21,7 +21,7 @@ def main():
 
     media_manager = MediaManager(session)
     search_manager = SearchManager(session)
-    media_initializer = MediaInitializer(session)
+    media_initializer = MediaInitializer(media_manager)
 
     media_initializer.initialize_media_from_disk()
     #loop = asyncio.get_event_loop()

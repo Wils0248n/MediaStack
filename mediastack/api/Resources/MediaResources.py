@@ -67,7 +67,7 @@ class MediaMutateTagsResource(Resource):
         if tag is None:
             return Response(ResponseType.NOT_FOUND, message="Tag not found.").getResponse()
         
-        if self._media_manager.remove_tag(media, tag) is not None:
+        if self._media_manager.remove_tag_from_media(media, tag) is not None:
             return Response(ResponseType.OK).getResponse()
         else:
             return Response(ResponseType.BAD_REQUEST, message="Media does not contain that tag.").getResponse()
@@ -80,7 +80,7 @@ class MediaMutateTagsResource(Resource):
         tag = self._media_manager.find_tag(tag_id)
         if tag is None:
             tag = self._media_manager.create_tag(tag_id)
-        if self._media_manager.add_tag(media, tag) is not None:
+        if self._media_manager.add_tag_to_media(media, tag) is not None:
             return Response(ResponseType.CREATED).getResponse()
         else:
             return Response(ResponseType.BAD_REQUEST, message="Media already contains tag.").getResponse()
@@ -94,7 +94,7 @@ class MediaMutateSourceResouce(Resource):
         if media is None:
             response = Response(ResponseType.NOT_FOUND, message="Media not found.")
         else:
-            self._media_manager.change_source(media, source)
+            self._media_manager.change_media_source(media, source)
             response = Response(ResponseType.OK)
 
         return response.getResponse()
@@ -108,7 +108,7 @@ class MediaMutateScoreResource(Resource):
         if media is None:
             return Response(ResponseType.NOT_FOUND, message="Media not found.").getResponse()
         
-        if self._media_manager.change_score(media, score) is None:
+        if self._media_manager.change_media_score(media, score) is None:
             return Response(ResponseType.BAD_REQUEST, message="Invalid score.").getResponse()
         
         return Response(ResponseType.OK).getResponse()

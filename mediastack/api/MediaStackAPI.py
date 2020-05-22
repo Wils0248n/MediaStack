@@ -1,9 +1,9 @@
-from flask import Flask, g
+from flask import Flask
 from flask_restful import Resource, Api
 from flask_cors import CORS
 from mediastack.api.Resources import *
 from mediastack.controller.MediaManager import MediaManager
-from mediastack.controller.SearchManager import SearchManager
+from mediastack.controller.search.SearchManager import SearchManager
 
 class MediaStackAPI():
     def __init__(self, media_manager: MediaManager, search_manager: SearchManager):
@@ -79,7 +79,10 @@ class MediaStackAPI():
             resource_class_kwargs={'media_manager': self._media_manager})
 
     def _add_search_resources(self):
-        self._api.add_resource(MediaSetResource, '/search/<string:media_set>',
+        self._api.add_resource(MediaSetResource, '/search',
+            resource_class_kwargs={'search_manager': self._search_manager})
+
+        self._api.add_resource(SearchMediaSetResource, '/search/<string:media_set>',
             resource_class_kwargs={'search_manager': self._search_manager})
 
         self._api.add_resource(SearchResouce, '/search/<string:media_set>/<string:query_string>',

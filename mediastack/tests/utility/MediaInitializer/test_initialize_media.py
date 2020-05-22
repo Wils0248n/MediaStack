@@ -8,6 +8,7 @@ from mediastack.model.Artist import Artist
 from mediastack.model.Category import Category
 from mediastack.utility.MediaIO import MediaIO
 from mediastack.controller.MediaInitializer import MediaInitializer
+from mediastack.controller.MediaManager import MediaManager
 
 class TestMediaInitializerInitializeMedia(unittest.TestCase):
     @classmethod
@@ -34,8 +35,7 @@ class TestMediaInitializerInitializeMedia(unittest.TestCase):
         Base.metadata.create_all(bind=self._engine)
         self._session_maker = sa.orm.sessionmaker(bind=self._engine)
         self._session = self._session_maker()
-        self._mediaio = MediaIO()
-        self._media_initializer = MediaInitializer(self._session, self._mediaio)
+        self._media_initializer = MediaInitializer(MediaManager(self._session))
 
     @classmethod
     def tearDown(self):
