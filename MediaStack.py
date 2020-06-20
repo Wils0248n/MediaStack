@@ -1,5 +1,6 @@
 import time, asyncio
 import sqlalchemy as sa
+from mediastack.api.Serializer import Serializer
 from mediastack.model.Base import Base
 from mediastack.controller import *
 from mediastack.api.MediaStackAPI import MediaStackAPI
@@ -15,6 +16,13 @@ async def _media_initializtion_process(media_initializer: MediaInitializer) -> N
         media_initializer.initialize_media_from_disk()
         await asyncio.sleep(10)
 
+def cache_serializations(search_manager: SearchManager) -> None:
+    result = search_manager.search(None)
+    for media in result[0]:
+        Serializer.serialize(media)
+    for album in result[1]:
+        Serializer.serialize(album)
+
 def main():
 
     session = create_session()
@@ -23,7 +31,9 @@ def main():
     search_manager = SearchManager(session)
     media_initializer = MediaInitializer(media_manager)
 
-    media_initializer.initialize_media_from_disk()
+    cache_serializations(search_manager)
+
+    #media_initializer.initialize_media_from_disk()
     #loop = asyncio.get_event_loop()
     #loop.create_task(_media_initializtion_process(media_initializer))
     MediaStackAPI(media_manager, search_manager).run()

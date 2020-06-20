@@ -14,7 +14,7 @@ class ResponseType(Enum):
     SERVICE_UNAVAILABLE = 503
 
 class Response():
-    def __init__(self, response_type: ResponseType, data = '', message: str = ''):
+    def __init__(self, response_type: ResponseType, data = None, message: str = None):
         self.response_type = response_type
         self.data = data
         self.message = message

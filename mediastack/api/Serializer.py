@@ -8,6 +8,20 @@ from mediastack.model.Category import Category
 class Serializer():
     
     @staticmethod
+    def serialize(model_object) -> Dict:
+        if isinstance(model_object, Media):
+            return Serializer.serialize_media(model_object)
+        if isinstance(model_object, Album):
+            return Serializer.serialize_album(model_object)
+        if isinstance(model_object, Tag):
+            return Serializer.serialize_tag(model_object)
+        if isinstance(model_object, Artist):
+            return Serializer.serialize_artist(model_object)
+        if isinstance(model_object, Category):
+            return Serializer.serialize_category(model_object)
+        raise RuntimeError("Could not serialize: " + type(model_object))
+
+    @staticmethod
     def serialize_media(media: Media) -> Dict:
         if media is None:
             return None
@@ -20,6 +34,8 @@ class Serializer():
         serialized_media['source'] = media.source
         serialized_media['score'] = media.score
         serialized_media['type'] = media.type
+        serialized_media['file'] = '/api/media/{}'.format(media.hash)
+        serialized_media['thumbnail'] = '/api/media/{}/thumbnail'.format(media.hash)
         serialized_media['tags'] = [tag.name for tag in media.tags]
 
         return serialized_media
@@ -32,6 +48,8 @@ class Serializer():
 
         serialized_album['name'] = album.name
         serialized_album['cover'] = album.cover.hash
+        serialized_album['category'] = album.cover.category_name
+        serialized_album['artist'] = album.cover.artist_name
         serialized_album['media'] = [media.hash for media in album.media]
         serialized_album['tags'] = [tag.name for tag in album.tags]
 

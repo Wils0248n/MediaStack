@@ -110,8 +110,8 @@ class MediaManager:
 
         media.tags.append(tag)
         
-        self._update_tags_on_disk(media)
         self._session.commit()
+        self._update_tags_on_disk(media)
         return tag
 
     def remove_tag_from_media(self, media: Media, tag: Tag) -> Tag:
@@ -123,8 +123,8 @@ class MediaManager:
         else:
             return None
 
-        self._update_tags_on_disk(media)
         self._session.commit()
+        self._update_tags_on_disk(media)
         return tag
 
     def change_media_source(self, media: Media, new_source: str) -> str:
@@ -132,8 +132,8 @@ class MediaManager:
             return None
         
         media.source = new_source
-        self._update_source_on_disk(media)
         self._session.commit()
+        self._update_source_on_disk(media)
         return new_source
 
     def change_media_score(self, media: Media, new_score: str) -> int:
@@ -146,8 +146,8 @@ class MediaManager:
             return None
 
         media.score = new_score
-        self._update_score_on_disk(media)
         self._session.commit()
+        self._update_score_on_disk(media)
 
         return new_score
     
@@ -171,22 +171,31 @@ class MediaManager:
         return media.album.media[current_index - 1]
 
     def _update_score_on_disk(self, media: Media) -> None:
+        if media.type != "image":
+            return
         old_hash = copy.copy(media.hash)
         MediaIO().write_score_to_file(media.path, media.score)
         media.hash = MediaIO().hash_file(media.path)
         self._session.refresh(media)
         os.rename("thumbs/" + old_hash, "thumbs/" + media.hash)
+        self._session.commit()
     
     def _update_source_on_disk(self, media: Media) -> None:
+        if media.type != "image":
+            return
         old_hash = copy.copy(media.hash)
         MediaIO().write_score_to_file(media.path, media.source)
         media.hash = MediaIO().hash_file(media.path)
         self._session.refresh(media)
         os.rename("thumbs/" + old_hash, "thumbs/" + media.hash)
+        self._session.commit()
 
     def _update_tags_on_disk(self, media: Media) -> None:
+        if media.type != "image":
+            return
         old_hash = copy.copy(media.hash)
         MediaIO().write_tags_to_file(media.path, [tag.name for tag in media.tags])
         media.hash = MediaIO().hash_file(media.path)
         self._session.refresh(media)
         os.rename("thumbs/" + old_hash, "thumbs/" + media.hash)
+        self._session.commit()

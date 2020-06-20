@@ -8,7 +8,10 @@ class TagsResource(Resource):
         self._media_manager = media_manager
 
     def get(self):
-        return Response(ResponseType.OK, data={'tags':[tag.name for tag in self._media_manager.get_tags()]}).getResponse()
+        data = {}
+        for tag in self._media_manager.get_tags():
+            data[tag.name] = Serializer.serialize_tag(tag)
+        return Response(ResponseType.OK, data=data).getResponse()
 
 class TagInfoResource(Resource):
     def __init__(self, media_manager: MediaManager):

@@ -29,6 +29,21 @@ class Album(Base):
                     tags.append(tag)
         return tags
 
+    def _score(self):
+        if (self.cover is not None):
+            return self.cover.score
+
+    score = property(_score)
+
+    def _types(self):
+        types = []
+        for media in self.media:
+            if media.type not in types:
+                types.append(media.type)
+        return types
+
+    types = property(_types)
+
     def __init__(self, name: str) -> None:
         if name is None or len(name) == 0:
             raise ValueError("Invalid album name.")

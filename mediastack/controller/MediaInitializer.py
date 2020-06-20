@@ -57,8 +57,10 @@ class MediaInitializer:
         if not self._thumbnailer.create_thumbnail(media_path):
             #print("Failed to thumbnail: " + media_path)
             return None
-        
-        media_metadata = self._mediaio.extract_metadata_from_media_file(media_path)
+        try:
+            media_metadata = self._mediaio.extract_metadata_from_media_file(media_path)
+        except UnicodeDecodeError:
+            return None
 
         if media_metadata is None:
             #print("Couldn't initialize: " + media_path)

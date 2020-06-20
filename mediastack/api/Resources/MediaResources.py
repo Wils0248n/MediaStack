@@ -10,10 +10,7 @@ class MediaResource(Resource):
         self._media_manager = media_manager
 
     def get(self):
-        data = {}
-        for media in self._media_manager.get_media():
-            data[media.hash] = Serializer.serialize_media(media)
-        return Response(ResponseType.OK, data=data).getResponse()
+        return Response(ResponseType.OK, data=[Serializer.serialize_media(media) for media in self._media_manager.get_media()]).getResponse()
 
 class MediaFileResource(Resource):
     def __init__(self, media_manager: MediaManager):
@@ -68,7 +65,7 @@ class MediaMutateTagsResource(Resource):
             return Response(ResponseType.NOT_FOUND, message="Tag not found.").getResponse()
         
         if self._media_manager.remove_tag_from_media(media, tag) is not None:
-            return Response(ResponseType.OK).getResponse()
+            return Response(ResponseType.OK, data=Serializer.serialize_media(media)).getResponse()
         else:
             return Response(ResponseType.BAD_REQUEST, message="Media does not contain that tag.").getResponse()
 
@@ -81,7 +78,7 @@ class MediaMutateTagsResource(Resource):
         if tag is None:
             tag = self._media_manager.create_tag(tag_id)
         if self._media_manager.add_tag_to_media(media, tag) is not None:
-            return Response(ResponseType.CREATED).getResponse()
+            return Response(ResponseType.CREATED, data=Serializer.serialize_media(media)).getResponse()
         else:
             return Response(ResponseType.BAD_REQUEST, message="Media already contains tag.").getResponse()
 
@@ -94,8 +91,10 @@ class MediaMutateSourceResouce(Resource):
         if media is None:
             response = Response(ResponseType.NOT_FOUND, message="Media not found.")
         else:
-            self._media_manager.change_media_source(media, source)
-            response = Response(ResponseType.OK)
+            if self._media_manager.change_media_source(media, source) is None:
+                response = Response(ResponseType.BAD_REQUEST, message="Invalid Source.")
+            else:
+                response = Response(ResponseType.OK, data=Serializer.serialize_media(media))
 
         return response.getResponse()
         
@@ -111,4 +110,4 @@ class MediaMutateScoreResource(Resource):
         if self._media_manager.change_media_score(media, score) is None:
             return Response(ResponseType.BAD_REQUEST, message="Invalid score.").getResponse()
         
-        return Response(ResponseType.OK).getResponse()
+        return Response(ResponseType.OK, data=Serializer.serialize_media(media)).getResponse()

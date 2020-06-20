@@ -79,14 +79,9 @@ class MediaStackAPI():
             resource_class_kwargs={'media_manager': self._media_manager})
 
     def _add_search_resources(self):
-        self._api.add_resource(MediaSetResource, '/api/search',
+        self._api.add_resource(SearchResource, '/api/search',
             resource_class_kwargs={'search_manager': self._search_manager})
-
-        self._api.add_resource(SearchMediaSetResource, '/api/search/<string:media_set>',
-            resource_class_kwargs={'search_manager': self._search_manager})
-
-        self._api.add_resource(SearchResouce, '/api/search/<string:media_set>/<string:query_string>',
-            resource_class_kwargs={'search_manager': self._search_manager})
+        
             
     def run(self):
         self._app.run(host='0.0.0.0', port=8000)
