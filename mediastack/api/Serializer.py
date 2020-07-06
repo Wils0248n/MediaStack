@@ -27,16 +27,17 @@ class Serializer():
             return None
         
         serialized_media = {}
+        serialized_media['id'] = media.id
         serialized_media['hash'] = media.hash
-        serialized_media['category'] = media.category_name
-        serialized_media['artist'] = media.artist_name
-        serialized_media['album'] = media.album_name
+        serialized_media['category_id'] = media.category_id
+        serialized_media['artist_id'] = media.artist_id
+        serialized_media['album_id'] = media.album_id
         serialized_media['source'] = media.source
         serialized_media['score'] = media.score
         serialized_media['type'] = media.type
-        serialized_media['file'] = '/api/media/{}'.format(media.hash)
-        serialized_media['thumbnail'] = '/api/media/{}/thumbnail'.format(media.hash)
-        serialized_media['tags'] = [tag.name for tag in media.tags]
+        serialized_media['file'] = '/api/media/{}'.format(media.id)
+        serialized_media['thumbnail'] = '/api/media/{}/thumbnail'.format(media.id)
+        serialized_media['tags'] = [{'id':tag.id,'name':tag.name} for tag in media.tags]
 
         return serialized_media
 
@@ -46,12 +47,13 @@ class Serializer():
             return None
         serialized_album = {}
 
+        serialized_album['id'] = album.id
         serialized_album['name'] = album.name
-        serialized_album['cover'] = album.cover.hash
-        serialized_album['category'] = album.cover.category_name
-        serialized_album['artist'] = album.cover.artist_name
-        serialized_album['media'] = [media.hash for media in album.media]
-        serialized_album['tags'] = [tag.name for tag in album.tags]
+        serialized_album['cover_id'] = album.cover.id if album.cover is not None else None
+        serialized_album['category_id'] = album.category_id
+        serialized_album['artist_id'] = album.artist_id
+        serialized_album['media'] = [Serializer.serialize(media) for media in album.media]
+        serialized_album['tags'] = [{'id':tag.id,'name':tag.name} for tag in album.tags]
 
         return serialized_album
 
@@ -60,8 +62,9 @@ class Serializer():
         if tag is None:
             return None
         serialized_tag = {}
+        serialized_tag['id'] = tag.id
         serialized_tag['name'] = tag.name
-        serialized_tag['media'] = [media.hash for media in tag.media]
+        serialized_tag['media'] = [media.id for media in tag.media]
 
         return serialized_tag
     
@@ -70,8 +73,10 @@ class Serializer():
         if artist is None:
             return None
         serialized_artist = {}
+        serialized_artist['id'] = artist.id
         serialized_artist['name'] = artist.name
-        serialized_artist['media'] = [media.hash for media in artist.media]
+        serialized_artist['media'] = [media.id for media in artist.media]
+        serialized_artist['albums'] = [album.id for album in artist.albums]
 
         return serialized_artist
 
@@ -80,7 +85,9 @@ class Serializer():
         if category is None:
             return None
         serialized_category = {}
+        serialized_category['id'] = category.id
         serialized_category['name'] = category.name
-        serialized_category['media'] = [media.hash for media in category.media]
+        serialized_category['media'] = [media.id for media in category.media]
+        serialized_category['albums'] = [album.id for album in category.albums]
 
         return serialized_category

@@ -38,7 +38,7 @@ class TestMediaManagerFindMedia(unittest.TestCase):
 
     def test_find_existing_media(self):
         media_manager = MediaManager(self._session)
-        media = media_manager.find_media("2550bc86af322d4e84e3c6a6480f8d4f")
+        media = media_manager.find_media_by_hash("2550bc86af322d4e84e3c6a6480f8d4f")
         self.assertIsNotNone(media)
         self.assertEqual("2550bc86af322d4e84e3c6a6480f8d4f", media.hash)
         self.assertEqual("media/input/input_artist/cat_album/image_1.jpg", media.path)
@@ -51,11 +51,11 @@ class TestMediaManagerFindMedia(unittest.TestCase):
     
     def test_find_non_existant_media(self):
         media_manager = MediaManager(self._session)
-        media = media_manager.find_media("non_existant_media_hash")
+        media = media_manager.find_media_by_hash("non_existant_media_hash")
         self.assertIsNone(media)
 
     def test_find_media_when_hash_is_none(self):
         media_manager = MediaManager(self._session)
-        media = media_manager.find_media(None)
+        media = media_manager.find_media_by_hash(None)
         self.assertIsNone(media)
     

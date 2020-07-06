@@ -6,7 +6,8 @@ from mediastack.model.Album import AlbumTag
 class Tag(Base):
     __tablename__ = 'tags'
 
-    name = sa.Column('name', sa.String, primary_key=True)
+    id = sa.Column('id', sa.Integer, primary_key=True)
+    name = sa.Column('name', sa.String, unique=True)
     media = sa.orm.relationship("Media", secondary=MediaTag, back_populates="tags")
     albums = sa.orm.relationship("Album", secondary=AlbumTag, back_populates="tags")
 

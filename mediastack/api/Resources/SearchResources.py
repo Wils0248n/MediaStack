@@ -32,7 +32,7 @@ class SearchResource(Resource):
                 "media": [Serializer.serialize_media(media) for media in search_result[0]],
                 "albums": [Serializer.serialize_album(album) for album in search_result[1]]
             }
-            return Response(ResponseType.OK, data=data).getResponse()
+            return Response(ResponseType.CREATED, data=data).getResponse()
         except SearchError as e:
             return Response(ResponseType.NOT_FOUND, message=str(e)).getResponse()
         except TypeError as e:

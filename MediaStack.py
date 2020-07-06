@@ -33,7 +33,7 @@ def main():
 
     cache_serializations(search_manager)
 
-    #media_initializer.initialize_media_from_disk()
+    media_initializer.initialize_media_from_disk()
     #loop = asyncio.get_event_loop()
     #loop.create_task(_media_initializtion_process(media_initializer))
     MediaStackAPI(media_manager, search_manager).run()

@@ -39,9 +39,9 @@ class TestMediaManagerAddTag(unittest.TestCase):
     def test_add_new_tag_to_valid_media_not_in_album(self):
         media_manager = MediaManager(self._session)
 
-        media = media_manager.find_media("d63f614e336fec57117d74b14aad1702")
+        media = media_manager.find_media_by_hash("d63f614e336fec57117d74b14aad1702")
         self.assertIsNotNone(media)
-        new_tag = media_manager.create_tag("tag_name")
+        new_tag = media_manager._create_tag("tag_name")
         self.assertIsNotNone(new_tag)
 
         originalMediaTags = copy.deepcopy(media.tags)
@@ -65,9 +65,9 @@ class TestMediaManagerAddTag(unittest.TestCase):
     def test_add_new_tag_to_valid_media_in_album(self):
         media_manager = MediaManager(self._session)
 
-        media = media_manager.find_media("2550bc86af322d4e84e3c6a6480f8d4f")
+        media = media_manager.find_media_by_hash("2550bc86af322d4e84e3c6a6480f8d4f")
         self.assertIsNotNone(media)
-        new_tag = media_manager.create_tag("tag_name")
+        new_tag = media_manager._create_tag("tag_name")
         self.assertIsNotNone(new_tag)
 
         originalMediaTags = copy.deepcopy(media.tags)
@@ -96,7 +96,7 @@ class TestMediaManagerAddTag(unittest.TestCase):
     def test_add_duplicate_tag_to_valid_media_not_in_album(self):
         media_manager = MediaManager(self._session)
 
-        media = media_manager.find_media("d63f614e336fec57117d74b14aad1702")
+        media = media_manager.find_media_by_hash("d63f614e336fec57117d74b14aad1702")
         self.assertIsNotNone(media)
         existing_tag = media_manager.find_tag("dog")
         self.assertIsNotNone(existing_tag)
@@ -122,7 +122,7 @@ class TestMediaManagerAddTag(unittest.TestCase):
     def test_add_duplicate_tag_to_valid_media_in_album(self):
         media_manager = MediaManager(self._session)
 
-        media = media_manager.find_media("2550bc86af322d4e84e3c6a6480f8d4f")
+        media = media_manager.find_media_by_hash("2550bc86af322d4e84e3c6a6480f8d4f")
         self.assertIsNotNone(media)
         existing_tag = media_manager.find_tag("dog")
         self.assertIsNotNone(existing_tag)

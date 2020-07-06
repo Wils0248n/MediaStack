@@ -32,33 +32,18 @@ class MediaStackAPI():
         self._api.add_resource(MediaInfoResource, '/api/media/<string:media_id>/info',
             resource_class_kwargs={'media_manager': self._media_manager})
 
-        self._api.add_resource(MediaMutateTagsResource, '/api/media/<string:media_id>/tags/<string:tag_id>',
-            resource_class_kwargs={'media_manager': self._media_manager})
-
-        self._api.add_resource(MediaMutateSourceResouce, '/api/media/<string:media_id>/source/<string:source>',
-            resource_class_kwargs={'media_manager': self._media_manager})
-        
-        self._api.add_resource(MediaMutateScoreResource, '/api/media/<string:media_id>/score/<string:score>',
-            resource_class_kwargs={'media_manager': self._media_manager})
-
     def _add_album_resources(self):
         self._api.add_resource(AlbumsResource, '/api/albums',
             resource_class_kwargs={'media_manager': self._media_manager})
         
         self._api.add_resource(AlbumInfoResource, '/api/albums/<string:album_id>/info',
             resource_class_kwargs={'media_manager': self._media_manager})
-
-        self._api.add_resource(AlbumMutateTagsResource, '/api/albums/<string:album_id>/tags/<string:tag_id>',
-            resource_class_kwargs={'media_manager': self._media_manager})
-
-        self._api.add_resource(AlbumMutateSourceResource, '/api/albums/<string:album_id>/source/<string:source>',
-            resource_class_kwargs={'media_manager': self._media_manager})
-
-        self._api.add_resource(AlbumMutateScoreResource, '/api/albums/<string:album_id>/score/<string:score>',
-            resource_class_kwargs={'media_manager': self._media_manager})
     
     def _add_tag_resources(self):
         self._api.add_resource(TagsResource, '/api/tags',
+            resource_class_kwargs={'media_manager': self._media_manager})
+
+        self._api.add_resource(TagCreationResource, '/api/tags/<string:tag_name>',
             resource_class_kwargs={'media_manager': self._media_manager})
 
         self._api.add_resource(TagInfoResource, '/api/tags/<string:tag_id>/info',
@@ -82,7 +67,6 @@ class MediaStackAPI():
         self._api.add_resource(SearchResource, '/api/search',
             resource_class_kwargs={'search_manager': self._search_manager})
         
-            
     def run(self):
         self._app.run(host='0.0.0.0', port=8000)
     

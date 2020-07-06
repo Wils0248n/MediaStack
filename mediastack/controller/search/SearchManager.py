@@ -69,21 +69,21 @@ class SearchManager:
         if search_query.album_restriction is not None:
             return []
         if search_query.artist_restriction is not None:
-            return self._session.query(Media).filter(Media.path != None, Media.album_name == None, Media.artist_name == search_query.artist_restriction.name)
+            return self._session.query(Media).filter(Media.path != None, Media.album_id == None, Media.artist_id == search_query.artist_restriction.id)
         if search_query.category_restriction is not None:
-            return self._session.query(Media).filter(Media.path != None, Media.album_name == None, Media.category_name == search_query.category_restriction.name)
+            return self._session.query(Media).filter(Media.path != None, Media.album_id == None, Media.category_id == search_query.category_restriction.id)
         if len(search_query.whitelist_tags) > 0:
             tag_media = search_query.whitelist_tags[0].media
-            return [media for media in tag_media if media.path is not None and media.album_name is None]
-        return self._session.query(Media).filter(Media.path != None, Media.album_name == None)
+            return [media for media in tag_media if media.path is not None and media.album_id is None]
+        return self._session.query(Media).filter(Media.path != None, Media.album_id == None)
 
     def _find_base_albums(self, search_query: SearchQuery) -> List[Album]:
         if search_query.album_restriction is not None:
             return [search_query.album_restriction]
         if search_query.artist_restriction is not None:
-            return [album for album in self._session.query(Album).all() if album.cover.artist == search_query.artist_restriction]
+            return [album for album in self._session.query(Album).all() if album.artist_id == search_query.artist_restriction.id]
         if search_query.category_restriction is not None:
-            return [album for album in self._session.query(Album).all() if album.cover.category == search_query.category_restriction]
+            return [album for album in self._session.query(Album).all() if album.category_id == search_query.category_restriction.id]
         if len(search_query.whitelist_tags) > 0:
             tag_albums = search_query.whitelist_tags[0].albums
             return [album for album in tag_albums if len(album.media) > 0]

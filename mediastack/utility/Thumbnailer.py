@@ -20,7 +20,7 @@ class Thumbnailer:
             pass
 
     def create_thumbnail(self, media_path: str) -> bool:
-        if not os.path.isfile(media_path):
+        if media_path is None or not os.path.isfile(media_path):
             return False
 
         media_hash = self._mediaio.hash_file(media_path)

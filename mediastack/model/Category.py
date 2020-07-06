@@ -4,7 +4,9 @@ from mediastack.model.Base import Base
 class Category(Base):
     __tablename__ = 'categories'
 
-    name = sa.Column('name', sa.String, primary_key=True)
+    id = sa.Column('id', sa.Integer, primary_key=True)
+    name = sa.Column('name', sa.String, unique=True)
+    albums = sa.orm.relationship('Album', backref='category', lazy='select')
     media = sa.orm.relationship('Media', backref='category', lazy='select')
 
     def __init__(self, name: str):

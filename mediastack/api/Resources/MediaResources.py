@@ -1,6 +1,6 @@
 import os
 from flask_restful import Resource
-from flask import send_file, send_from_directory
+from flask import send_file, send_from_directory, request
 from mediastack.controller.MediaManager import MediaManager
 from mediastack.api.Serializer import Serializer
 from mediastack.api.Response import Response, ResponseType
@@ -17,7 +17,11 @@ class MediaFileResource(Resource):
         self._media_manager = media_manager
 
     def get(self, media_id):
-        media = self._media_manager.find_media(media_id)
+        try:
+            media_id = int(media_id)
+        except ValueError:
+            return Response(ResponseType.BAD_REQUEST, message="Invalid media id.").getResponse()
+        media = self._media_manager.find_media_by_id(media_id)
         if media is not None:
             return send_from_directory(os.getcwd(), media.path, as_attachment=True)
             
@@ -28,8 +32,16 @@ class MediaThumbnailFileResource(Resource):
             self._media_manager = media_manager
         
     def get(self, media_id):
-        if os.path.isfile("thumbs/" + media_id) is not None:
-            return send_from_directory(os.getcwd(), "thumbs/" + media_id, as_attachment=True)
+        try:
+            media_id = int(media_id)
+        except ValueError:
+            return Response(ResponseType.BAD_REQUEST, message="Invalid media id.").getResponse()
+        media = self._media_manager.find_media_by_id(media_id)
+        if media is None:
+            return Response(ResponseType.NOT_FOUND, message="Media not found.").getResponse()
+        
+        if os.path.isfile("thumbs/" + media.hash) is not None:
+            return send_from_directory(os.getcwd(), "thumbs/" + media.hash, as_attachment=True)
         
         return Response(ResponseType.NOT_FOUND, message="Media not found.").getResponse()
 
@@ -38,76 +50,45 @@ class MediaInfoResource(Resource):
         self._media_manager = media_manager
 
     def get(self, media_id):
-        media = self._media_manager.find_media(media_id)
+        try:
+            media_id = int(media_id)
+        except ValueError:
+            return Response(ResponseType.BAD_REQUEST, message="Invalid media id.").getResponse()
+        media = self._media_manager.find_media_by_id(media_id)
         if media is not None:
-            data = {}
-            data['media'] = Serializer.serialize_media(media)
-            next_media = self._media_manager.get_next_media_in_album(media)
-            previous_media = self._media_manager.get_previous_media_in_album(media)
-            data['next_media'] = None if next_media is None else next_media.hash
-            data['previous_media'] = None if previous_media is None else previous_media.hash
-            response = Response(ResponseType.OK, data=data)
+            response = Response(ResponseType.OK, data=Serializer.serialize(media))
         else:
             response = Response(ResponseType.NOT_FOUND, message="Media not found.")
         
         return response.getResponse()
 
-class MediaMutateTagsResource(Resource):
-    def __init__(self, media_manager: MediaManager):
-        self._media_manager = media_manager
+    def put(self, media_id):
+        try:
+            media_id = int(media_id)
+        except ValueError:
+            return Response(ResponseType.BAD_REQUEST, message="Invalid media id.").getResponse()
+        media = self._media_manager.find_media_by_id(media_id)
+        try:
+            if media is not None:
+                new_media_info = request.get_json()
+                if 'score' in new_media_info.keys():
+                    self._media_manager.change_media_score(media, new_media_info['score'])
+                if 'source' in new_media_info.keys():
+                    self._media_manager.change_media_source(media, new_media_info['source'])
+                if 'tags' in new_media_info:
+                    new_tags = []
+                    for tag_id in new_media_info['tags']:
+                        tag = self._media_manager.find_tag_by_id(tag_id)
+                        if tag is None:
+                            return Response(ResponseType.BAD_REQUEST, message="Invalid tag id: {}".format(str(tag_id))).getResponse()
 
-    def delete(self, media_id: str, tag_id: str):
-        media = self._media_manager.find_media(media_id)
-        if media is None:
-            return Response(ResponseType.NOT_FOUND, message="Media not found.").getResponse()
-        tag = self._media_manager.find_tag(tag_id)
-        if tag is None:
-            return Response(ResponseType.NOT_FOUND, message="Tag not found.").getResponse()
-        
-        if self._media_manager.remove_tag_from_media(media, tag) is not None:
-            return Response(ResponseType.OK, data=Serializer.serialize_media(media)).getResponse()
-        else:
-            return Response(ResponseType.BAD_REQUEST, message="Media does not contain that tag.").getResponse()
+                        new_tags.append(tag)
 
-    def post(self, media_id: str, tag_id: str):
-        media = self._media_manager.find_media(media_id)
-        if media is None:
-            return Response(ResponseType.NOT_FOUND, message="Media not found.").getResponse()
-        
-        tag = self._media_manager.find_tag(tag_id)
-        if tag is None:
-            tag = self._media_manager.create_tag(tag_id)
-        if self._media_manager.add_tag_to_media(media, tag) is not None:
-            return Response(ResponseType.CREATED, data=Serializer.serialize_media(media)).getResponse()
-        else:
-            return Response(ResponseType.BAD_REQUEST, message="Media already contains tag.").getResponse()
-
-class MediaMutateSourceResouce(Resource):
-    def __init__(self, media_manager: MediaManager):
-        self._media_manager = media_manager
-    
-    def put(self, media_id: str, source: str):
-        media = self._media_manager.find_media(media_id)
-        if media is None:
-            response = Response(ResponseType.NOT_FOUND, message="Media not found.")
-        else:
-            if self._media_manager.change_media_source(media, source) is None:
-                response = Response(ResponseType.BAD_REQUEST, message="Invalid Source.")
+                    self._media_manager.change_media_tags(media, new_tags)
+                response = Response(ResponseType.OK, data=Serializer.serialize(media))
             else:
-                response = Response(ResponseType.OK, data=Serializer.serialize_media(media))
+                response = Response(ResponseType.NOT_FOUND, message="Media not found.")
+        except TypeError:
+            response = Response(ResponseType.BAD_REQUEST, message="Bad media data.")
 
         return response.getResponse()
-        
-class MediaMutateScoreResource(Resource):
-    def __init__(self, media_manager: MediaManager):
-        self._media_manager = media_manager
-    
-    def put(self, media_id: str, score: str):
-        media = self._media_manager.find_media(media_id)
-        if media is None:
-            return Response(ResponseType.NOT_FOUND, message="Media not found.").getResponse()
-        
-        if self._media_manager.change_media_score(media, score) is None:
-            return Response(ResponseType.BAD_REQUEST, message="Invalid score.").getResponse()
-        
-        return Response(ResponseType.OK, data=Serializer.serialize_media(media)).getResponse()

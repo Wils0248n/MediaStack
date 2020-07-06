@@ -1,24 +1,24 @@
-from enum import Enum
 import sqlalchemy as sa
 from mediastack.model.Base import Base
 from mediastack.model.Album import Album
 
 MediaTag = sa.Table('media_tag', Base.metadata, 
-    sa.Column('media', sa.String, sa.ForeignKey('media.hash')),
-    sa.Column('tags', sa.String, sa.ForeignKey('tags.name')))
+    sa.Column('media', sa.Integer, sa.ForeignKey('media.id')),
+    sa.Column('tags', sa.Integer, sa.ForeignKey('tags.id')))
 
 class Media(Base):
     __tablename__ = 'media'
 
-    hash = sa.Column('hash', sa.String, primary_key=True)
+    id = sa.Column('id', sa.Integer, primary_key=True)
+    hash = sa.Column('hash', sa.String, unique=True)
     path = sa.Column('path', sa.String, nullable=True)
-    category_name = sa.Column(sa.String, sa.ForeignKey('categories.name'), nullable=True)
-    artist_name = sa.Column(sa.String, sa.ForeignKey('artists.name'), nullable=True)
-    album_name = sa.Column(sa.String, sa.ForeignKey('albums.name'), nullable=True)
+    category_id = sa.Column(sa.Integer, sa.ForeignKey('categories.id'), nullable=True)
+    artist_id = sa.Column(sa.Integer, sa.ForeignKey('artists.id'), nullable=True)
+    album_id = sa.Column(sa.Integer, sa.ForeignKey('albums.id'), nullable=True)
 
-    type = sa.Column('type', sa.String)
-    score = sa.Column('score', sa.Integer)
-    source = sa.Column('source', sa.String)
+    type = sa.Column('type', sa.String, nullable=False)
+    score = sa.Column('score', sa.Integer, nullable=True)
+    source = sa.Column('source', sa.String, nullable=True)
     
     tags = sa.orm.relationship("Tag", secondary=MediaTag, back_populates="media")
 

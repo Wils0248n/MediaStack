@@ -8,18 +8,19 @@ class CategoriesResource(Resource):
         self._media_manager = media_manager
 
     def get(self):
-        data = {}
-        for category in self._media_manager.get_categories():
-            data[category.name] = Serializer.serialize_category(category)
-        return Response(ResponseType.OK, data=data).getResponse()
+        return Response(ResponseType.OK, data=[{'id':category.id, 'name':category.name} for category in self._media_manager.get_categories()]).getResponse()
     
 class CategoryInfoResource(Resource):
     def __init__(self, media_manager: MediaManager):
         self._media_manager = media_manager
 
     def get(self, category_id: str):
-        category = self._media_manager.find_category(category_id)
+        try:
+            category_id = int(category_id)
+        except ValueError:
+            return Response(ResponseType.BAD_REQUEST, message="Invalid category id.").getResponse()
+        category = self._media_manager.find_category_by_id(category_id)
         if category is None:
             return Response(ResponseType.NOT_FOUND, message="Category not found.").getResponse()
 
-        return Response(ResponseType.OK, data={'artist':Serializer.serialize_category(category)}).getResponse()
+        return Response(ResponseType.OK, data=Serializer.serialize(category)).getResponse()

@@ -20,11 +20,11 @@ class MediaIO:
 
         path_split = media_path.split(os.path.sep)
 
-        media_metadata["category"] = path_split[1].lower() if 1 < len(path_split) \
+        media_metadata["category"] = path_split[1] if 1 < len(path_split) \
             and os.path.isdir(os.sep.join([path_split[0], path_split[1]])) else None
-        media_metadata["artist"] = path_split[2].lower() if 2 < len(path_split) \
+        media_metadata["artist"] = path_split[2] if 2 < len(path_split) \
             and os.path.isdir(os.sep.join([path_split[0], path_split[1], path_split[2]])) else None
-        media_metadata["album"] = path_split[3].lower() if 3 < len(path_split) \
+        media_metadata["album"] = path_split[3] if 3 < len(path_split) \
             and os.path.isdir(os.sep.join([path_split[0], path_split[1], path_split[2], path_split[3]])) else None
 
         if media_metadata["type"] == "image":
@@ -53,7 +53,7 @@ class MediaIO:
     def _extract_tags(self, iptc_info: IPTCInfo) -> List[str]:
         keywords = []
         for keyword in iptc_info['keywords']:
-            keywords.append(keyword.decode("utf-8").replace(" ", "_").lower())
+            keywords.append(keyword.decode("utf-8"))
         return keywords
 
     def _extract_source(self, iptc_info: IPTCInfo) -> str:
@@ -86,35 +86,18 @@ class MediaIO:
 
         image_without_exif.save(media_path, format=image.format)
 
-    def write_tags_to_file(self, media_path: str, tags: List[str]) -> str:
-        if media_path is None or tags is None or not os.path.isfile(media_path):
-            return None
-        info = IPTCInfo(media_path)
-        if info is None:
-            return None
-        info['keywords'] = [tag_name.encode() for tag_name in tags]
-        info.save()
-        os.remove(media_path + '~')
-        return self.hash_file(media_path)
-
-    def write_source_to_file(self, media_path: str, source: str) -> str:
+    def write_metadata_to_file(self, media_path: str, tags: List[str], source: str, score: int) -> str:
         if media_path is None or source is None or not os.path.isfile(media_path):
             return None
         info = IPTCInfo(media_path)
         if info is None:
             return None
-        info['source'] = source
-        info.save()
-        os.remove(media_path + '~')
-        return self.hash_file(media_path)
-
-    def write_score_to_file(self, media_path: str, score: int) -> str:
-        if media_path is None or score is None or not os.path.isfile(media_path):
-            return None
-        info = IPTCInfo(media_path)
-        if info is None:
-            return None
-        info['urgency'] = str(score)
+        if tags is not None and len(tags) == 0:
+            info['keywords'] = [tag_name.encode() for tag_name in tags]
+        if source is not None:
+            info['source'] = source
+        if score is not None:
+            info['urgency'] = str(score)
         info.save()
         os.remove(media_path + '~')
         return self.hash_file(media_path)

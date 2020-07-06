@@ -46,50 +46,50 @@ class SearchParser():
 
     def _extract_whitelist_tags(self, search_query: SearchQuery, raw_search_query: Dict) -> None:
         try:
-            for tag_name in raw_search_query['whitelist_tags']:
-                tag = self._session.query(Tag).get(tag_name)
+            for tag_id in raw_search_query['whitelist_tags']:
+                tag = self._session.query(Tag).get(tag_id)
                 if tag is None:
-                    raise SearchError("Could not find whitelist tag: " + tag_name)
+                    raise SearchError("Could not find whitelist tag: " + tag_id)
                 search_query.whitelist_tags.append(tag)
         except KeyError:
             pass
 
     def _extract_blacklist_tags(self, search_query: SearchQuery, raw_search_query: Dict) -> None:
         try:
-            for tag_name in raw_search_query['blacklist_tags']:
-                tag = self._session.query(Tag).get(tag_name)
+            for tag_id in raw_search_query['blacklist_tags']:
+                tag = self._session.query(Tag).get(tag_id)
                 if tag is None:
-                    raise SearchError("Could not find blacklist tag: " + tag_name)
+                    raise SearchError("Could not find blacklist tag: " + tag_id)
                 search_query.blacklist_tags.append(tag)
         except KeyError:
             pass
 
     def _extract_blacklist_albums(self, search_query: SearchQuery, raw_search_query: Dict) -> None:
         try:
-            for album_name in raw_search_query['blacklist_albums']:
-                album = self._session.query(Album).get(album_name)
+            for album_id in raw_search_query['blacklist_albums']:
+                album = self._session.query(Album).get(album_id)
                 if album is None:
-                    raise SearchError("Could not find blacklist album: " + album_name)
+                    raise SearchError("Could not find blacklist album: " + album_id)
                 search_query.blacklist_albums.append(album)
         except KeyError:
             pass
 
     def _extract_blacklist_artists(self, search_query: SearchQuery, raw_search_query: Dict) -> None:
         try:
-            for artist_name in raw_search_query['blacklist_artists']:
-                artist = self._session.query(Artist).get(artist_name)
+            for artist_id in raw_search_query['blacklist_artists']:
+                artist = self._session.query(Artist).get(artist_id)
                 if artist is None:
-                    raise SearchError("Could not find blacklist artist: " + artist_name)
+                    raise SearchError("Could not find blacklist artist: " + artist_id)
                 search_query.blacklist_artists.append(artist)
         except KeyError:
             pass
 
     def _extract_blacklist_categories(self, search_query: SearchQuery, raw_search_query: Dict) -> None:
         try:
-            for category_name in raw_search_query['blacklist_categories']:
-                category = self._session.query(Category).get(category_name)
+            for category_id in raw_search_query['blacklist_categories']:
+                category = self._session.query(Category).get(category_id)
                 if category is None:
-                    raise SearchError("Could not find blacklist category: " + category_name)
+                    raise SearchError("Could not find blacklist category: " + category_id)
                 search_query.blacklist_categories.append(category)
         except KeyError:
             pass
