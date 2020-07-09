@@ -6,7 +6,8 @@ from mediastack.utility.MediaIO import MediaIO
 
 class MediaManager:
 
-    def __init__(self, session: sa.orm.Session):
+    def __init__(self, session: sa.orm.Session, write_metadata: bool = False):
+        self._write_metadata = write_metadata
         self._session = session
 
     def get_media(self) -> List[Media]:
@@ -171,7 +172,7 @@ class MediaManager:
             media.album.tags = media.album.get_media_tags()
         
         self._session.commit()
-        self._write_metadata(media)
+        self._write_metadata_to_disk(media)
         return tag
 
     def remove_tag_from_media(self, media: Media, tag: Tag) -> Tag:
@@ -184,7 +185,7 @@ class MediaManager:
             media.album.tags = media.album.get_media_tags()
 
         self._session.commit()
-        self._write_metadata(media)
+        self._write_metadata_to_disk(media)
         return tag
 
     def change_media_tags(self, media: Media, tags: List[Tag]) -> Media:
@@ -194,7 +195,7 @@ class MediaManager:
             media.album.tags = media.album.get_media_tags()
 
         self._session.commit()
-        self._write_metadata(media)
+        self._write_metadata_to_disk(media)
             
     def change_media_source(self, media: Media, new_source: str) -> str:
         if media is None or new_source is None or len(new_source) == 0:
@@ -202,7 +203,7 @@ class MediaManager:
         
         media.source = new_source
         self._session.commit()
-        self._write_metadata(media)
+        self._write_metadata_to_disk(media)
         return new_source
 
     def change_media_score(self, media: Media, new_score: str) -> int:
@@ -216,7 +217,7 @@ class MediaManager:
 
         media.score = new_score
         self._session.commit()
-        self._write_metadata(media)
+        self._write_metadata_to_disk(media)
 
         return new_score
     
@@ -237,7 +238,10 @@ class MediaManager:
 
         self._session.commit()
     
-    def _write_metadata(self, media: Media) -> None:
+    def _write_metadata_to_disk(self, media: Media) -> None:
+        if not self._write_metadata:
+            return
+
         if media.type != "image":
             return
         try:

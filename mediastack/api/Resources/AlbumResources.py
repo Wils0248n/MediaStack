@@ -49,16 +49,9 @@ class AlbumInfoResource(Resource):
             for media in album.media:
                 self._media_manager.change_media_score(media, request_json['score'])
 
-        if 'tag' in request_json.keys():
-            tag = self._media_manager.find_tag_by_id(request_json['tag'])
-            if tag is None:
-                return Response(ResponseType.NOT_FOUND, message="Invalid tag_id: {}".format(request_json['tag_id'])).getResponse()
-            for media in album.media:
-                self._media_manager.add_tag_to_media(media, tag)
-
-        if 'tags' in request_json.keys():
+        if 'add_tags' in request_json.keys():
             tags = []
-            for tag_id in request_json['tags']:
+            for tag_id in request_json['add_tags']:
                 tag = self._media_manager.find_tag_by_id(tag_id)
                 if tag is None:
                     return Response(ResponseType.NOT_FOUND, message="Invalid tag_id in tags: {}".format(str(tag_id))).getResponse()
@@ -66,5 +59,16 @@ class AlbumInfoResource(Resource):
 
             for media in album.media:
                 self._media_manager.change_media_tags(media, [tag for tag in tags if tag not in media.tags] + media.tags)
+
+        if 'remove_tags' in request_json.keys():
+            tags = []
+            for tag_id in request_json['remove_tags']:
+                tag = self._media_manager.find_tag_by_id(tag_id)
+                if tag is None:
+                    return Response(ResponseType.NOT_FOUND, message="Invalid tag_id in tags: {}".format(str(tag_id))).getResponse()
+                tags.append(tag)
+
+            for media in album.media:
+                self._media_manager.change_media_tags(media, [tag for tag in media.tags if tag not in tags])
 
         return Response(ResponseType.OK, data=Serializer.serialize_album(album)).getResponse()
