@@ -48,8 +48,8 @@ class SearchManager:
             self._album_list = [album for album in self._album_list if album.cover.category.name != category.name]
 
         if search_query.score_restriction is not None:
-            self._media_list = [media for media in self._media_list if media.score is not None and media.score is not search_query.score_restriction]
-            self._album_list = [album for album in self._album_list if album.score is not None and album.score is not search_query.score_restriction]
+            self._media_list = [media for media in self._media_list if media.score is not None and media.score == search_query.score_restriction]
+            self._album_list = [album for album in self._album_list if album.score is not None and album.score == search_query.score_restriction]
 
         if search_query.gt_score_restriction is not None:
             self._media_list = [media for media in self._media_list if media.score is not None and media.score > search_query.gt_score_restriction]
