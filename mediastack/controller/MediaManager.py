@@ -162,6 +162,21 @@ class MediaManager:
             self._session.commit()
         return tag
 
+    def delete_tag(self, tag: Tag) -> bool:
+        if tag is None:
+            return False
+        self._session.delete(tag)
+        self._session.commit()
+        return True
+
+    def rename_tag(self, tag: Tag, tag_name: str) -> Tag:
+        if tag is None or tag_name is None or len(tag_name) == 0 or self.find_tag_by_name(tag_name) is not None:
+            return None
+
+        tag.name = tag_name.lower()
+        self._session.commit()
+        
+
     def add_tag_to_media(self, media: Media, tag: Tag) -> Tag:
         if media is None or tag is None or tag in media.tags:
             return None
