@@ -1,4 +1,4 @@
-import os, hashlib, filetype, logging
+import os, hashlib, filetype, logging, shutil
 from typing import List, Dict
 from iptcinfo3 import IPTCInfo
 from PIL import Image
@@ -101,6 +101,18 @@ class MediaIO:
         info.save()
         os.remove(media_path + '~')
         return self.hash_file(media_path)
+
+    @staticmethod
+    def move_file_or_directory(path: str, new_path) -> bool:
+        dirs = new_path.split(os.path.sep)
+        if len(dirs) > 1:
+            currentDir = None
+            for dir in dirs[:-1]:
+                currentDir = dir if currentDir is None else currentDir + os.path.sep + dir
+                if not os.path.isdir(currentDir):
+                    os.mkdir(currentDir)
+            
+        shutil.move(path, new_path)
 
     @staticmethod
     def hash_file(file_path: str) -> str:

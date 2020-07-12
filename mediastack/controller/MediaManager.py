@@ -176,7 +176,6 @@ class MediaManager:
         tag.name = tag_name.lower()
         self._session.commit()
         
-
     def add_tag_to_media(self, media: Media, tag: Tag) -> Tag:
         if media is None or tag is None or tag in media.tags:
             return None
@@ -236,6 +235,52 @@ class MediaManager:
 
         return new_score
     
+    def change_media_category(self, media: Media, category: Category) -> Media:
+        if media.album_id is not None:
+            return
+        
+        self._change_media_category(media, category)
+        self._session.commit()
+
+        return media
+
+    def _change_media_category(self, media: Media, category: Category) -> Media:
+        if media is None or category is None or media.path is None:# or media.category_id == category.id:
+            return None
+
+        fileName = media.path.split(os.path.sep)[-1:][0]
+
+        if media.category_id is None or media.artist_id is None:
+            new_path = "media/{}/{}".format(category.name, fileName)
+        else:
+            new_path = "media/{}/{}/{}".format(category.name, media.artist.name, fileName)
+
+        self._move_media_file(media, new_path)
+        media.category = category
+        
+    def change_album_category(self, album: Album, category: Category) -> Album:
+        if album is None or category is None:# or album.category_id == category.id:
+            return None
+
+        # TODO: This file IO functionality should be moved elsewhere.
+
+        path_split = album.cover.path.split(os.path.sep)
+        albumDirPath = os.path.sep.join(path_split[:-1])
+        albumDirName = path_split[-2]
+
+        MediaIO().move_file_or_directory(albumDirPath, "media/{}/{}/{}".format(category.name, album.artist.name, albumDirName))
+        
+        album.category = category
+
+        for media in album.media:
+            fileName = media.path.split(os.path.sep)[-1]
+            media.path = "media/{}/{}/{}/{}".format(category.name, album.artist.name, albumDirName, fileName)
+            media.category = category
+
+        self._session.commit()
+        
+        return album
+
     def disable_media(self, media: Media) -> None:
         media.path = None
         media.category = None
@@ -253,6 +298,10 @@ class MediaManager:
 
         self._session.commit()
     
+    def _move_media_file(self, media: Media, new_path: str) -> Media:
+            MediaIO().move_file_or_directory(media.path, new_path)
+            media.path = new_path
+
     def _write_metadata_to_disk(self, media: Media) -> None:
         if not self._write_metadata:
             return

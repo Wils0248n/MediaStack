@@ -41,6 +41,12 @@ class AlbumInfoResource(Resource):
 
         request_json = request.get_json()
 
+        if 'category' in request_json.keys():
+            category = self._media_manager.find_category_by_id(request_json['category'])
+            if category is None:
+                return Response(ResponseType.NOT_FOUND, message="Category not found: {}".format(request_json['category'])).getResponse()
+            self._media_manager.change_album_category(album, category)
+
         if 'source' in request_json.keys():
             for media in album.media:
                 self._media_manager.change_media_source(media, request_json['source'])

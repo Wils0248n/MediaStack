@@ -71,6 +71,11 @@ class MediaInfoResource(Resource):
         try:
             if media is not None:
                 new_media_info = request.get_json()
+                if 'category' in new_media_info.keys():
+                    category = self._media_manager.find_category_by_id(new_media_info['category'])
+                    if category is None:
+                        return Response(ResponseType.NOT_FOUND, message="Category not found: {}".format(new_media_info['category'])).getResponse()
+                    self._media_manager.change_media_category(media, category)
                 if 'score' in new_media_info.keys():
                     self._media_manager.change_media_score(media, new_media_info['score'])
                 if 'source' in new_media_info.keys():

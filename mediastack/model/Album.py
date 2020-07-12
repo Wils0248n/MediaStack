@@ -21,7 +21,7 @@ class Album(Base):
         if len(self.media) == 0:
             return None
         self.media.sort()
-        return self.media[0]
+        return [media for media in self.media if media.path is not None][0]
 
     cover = property(_cover)
 
