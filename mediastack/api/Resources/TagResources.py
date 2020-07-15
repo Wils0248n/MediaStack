@@ -50,7 +50,7 @@ class TagInfoResource(Resource):
         if tag is None:
             return Response(ResponseType.NOT_FOUND, message="Tag not found.").getResponse()
         
-        return Response(ResponseType.OK, data={'tag':Serializer.serialize_tag(tag)}).getResponse()
+        return Response(ResponseType.OK, data=Serializer.serialize_tag(tag)).getResponse()
 
     def put(self, tag_id):
         try:
