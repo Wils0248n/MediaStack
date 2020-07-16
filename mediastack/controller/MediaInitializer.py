@@ -15,9 +15,9 @@ class MediaInitializer:
 
     def initialize_media_from_disk(self):
         media_paths = MediaIO.scan_directory(self.media_directory)
-        print("Disabling missing Media...")
+        #print("Disabling missing Media...")
         self._find_and_disable_missing_media(media_paths)
-        print("Initializing new Media on Disk...")
+        #print("Initializing new Media on Disk...")
         self._find_and_handle_new_media(media_paths)
 
     def _find_and_disable_missing_media(self, media_paths):
@@ -26,11 +26,11 @@ class MediaInitializer:
             if media.path not in media_paths:
                 missing_media += 1
                 self._media_manager.disable_media(media)
-        print(str(missing_media) + " missing media found.")
+        #print(str(missing_media) + " missing media found.")
 
     def _find_and_handle_new_media(self, media_paths: List[str]):
         mutated_media = self._find_mutated_media(media_paths)
-        print(str(len(mutated_media.keys())) + " new media found.")
+        #print(str(len(mutated_media.keys())) + " new media found.")
         for media_file_hash in mutated_media.keys():
             self._create_media(self._create_media(mutated_media[media_file_hash]))
                 
@@ -49,7 +49,7 @@ class MediaInitializer:
             return None
         
         if not self._thumbnailer.create_thumbnail(media_path):
-            print("Failed to thumbnail: " + media_path)
+            #print("Failed to thumbnail: " + media_path)
             return None
         try:
             media_metadata = self._mediaio.extract_metadata_from_media_file(media_path)
@@ -57,7 +57,7 @@ class MediaInitializer:
             return None
 
         if media_metadata is None:
-            print("Couldn't read file: " + media_path)
+            #print("Couldn't read file: " + media_path)
             return None
 
         if self._media_manager.create_media(
@@ -71,5 +71,6 @@ class MediaInitializer:
             media_metadata["album"],
             media_metadata["tags"]
         ) is None:
-            print("Duplicate File: {}".format(media_path))
+            pass
+            #print("Duplicate File: {}".format(media_path))
     
